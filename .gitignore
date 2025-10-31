@@ -42,4 +42,3 @@ next-env.d.ts
 
 #tokenとか(絶対に書き換えないで絶対に死んでも消さないでまじで)
 .env.local
-.env
