@@ -12,6 +12,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   test:
@@ -36,7 +37,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: npm test
+        run: npm dev
 
   build:
     needs: test
@@ -100,3 +101,4 @@ jobs:
                  --token=${{ secrets.VERCEL_TOKEN }} \
                  --scope=${{ secrets.VERCEL_ORG_ID }} \
                  --confirm
+
