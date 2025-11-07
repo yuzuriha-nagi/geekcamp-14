@@ -1,0 +1,106 @@
+"use client";
+
+import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import { FormEvent, useState } from "react";
+
+type Status =
+  | { type: "idle" }
+  | { type: "error"; message: string }
+  | { type: "success"; message: string };
+
+export default function LoginForm() {
+  const [status, setStatus] = useState<Status>({ type: "idle" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const userId = String(formData.get("userId") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+
+    if (!userId || !password) {
+      setStatus({
+        type: "error",
+        message: "ユーザーIDとパスワードを入力してください。",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatus({ type: "idle" });
+
+    const credentials =
+      userId.includes("@")
+        ? ({ email: userId } as const)
+        : ({ phone: userId } as const);
+
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      ...credentials,
+      password,
+    });
+
+    if (error) {
+      setStatus({ type: "error", message: error.message });
+    } else {
+      setStatus({
+        type: "success",
+        message: "ログインに成功しました。",
+      });
+      event.currentTarget.reset();
+    }
+
+    setIsSubmitting(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label
+          htmlFor="userId"
+          className="text-sm font-medium text-black"
+        >
+          ユーザーID
+        </label>
+        <input
+          id="userId"
+          name="userId"
+          type="text"
+          placeholder="student@example.com"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          autoComplete="username"
+          disabled={isSubmitting}
+        />
+      </div>
+      <div className="space-y-2">
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-black"
+        >
+          パスワード
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          autoComplete="current-password"
+          disabled={isSubmitting}
+        />
+      </div>
+      <button
+        type="submit"
+        className="w-full rounded-lg bg-zinc-900 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "ログイン中..." : "ログイン"}
+      </button>
+      {status.type === "error" && (
+        <p className="text-sm text-red-600">{status.message}</p>
+      )}
+      {status.type === "success" && (
+        <p className="text-sm text-emerald-600">{status.message}</p>
+      )}
+    </form>
+  );
+}
