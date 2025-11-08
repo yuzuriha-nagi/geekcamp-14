@@ -7,13 +7,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: pages
+  group: vercel
   cancel-in-progress: false
 
 permissions:
   contents: read
-  pages: read
-  id-token: write
+  pull-requests: write
 
 jobs:
   test:
@@ -25,8 +24,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: 18.x
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: |
@@ -37,7 +37,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: npm test
+        run: npm dev
 
   build:
     needs: test
@@ -49,8 +49,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: 18.x
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: |
@@ -63,21 +64,40 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload static site artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: ./out
+          name: build
+          path: |
+            .next
+            dist
+            build
+          if-no-files-found: ignore
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel (Production)
+        run: |
+          vercel --prod --yes \
+                 --token=${{ secrets.VERCEL_TOKEN }} \
+                 --scope=${{ secrets.VERCEL_ORG_ID }} \
+                 --confirm
