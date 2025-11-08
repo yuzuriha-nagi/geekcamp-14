@@ -38,7 +38,7 @@ export default function LoginForm() {
         : ({ phone: userId } as const);
 
     const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       ...credentials,
       password,
     });
@@ -49,13 +49,41 @@ export default function LoginForm() {
       return;
     }
 
+    const user = data.user;
+    if (!user) {
+      setStatus({
+        type: "error",
+        message: "ユーザー情報の取得に失敗しました。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { data: roleData, error: roleError } = await supabase
+      .from("roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (roleError || !roleData?.role) {
+      setStatus({
+        type: "error",
+        message: "権限情報が見つかりません。管理者にお問い合わせください。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const destination =
+      roleData.role === "teacher" ? "/dashboard/teacher" : "/dashboard";
+
     setStatus({
       type: "success",
       message: "ログインに成功しました。",
     });
     form.reset();
     setIsSubmitting(false);
-    router.push("/dashboard");
+    router.push(destination);
   };
 
   return (
@@ -72,7 +100,7 @@ export default function LoginForm() {
           name="userId"
           type="text"
           placeholder="student@example.com"
-          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-zinc-400 shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
           autoComplete="username"
           disabled={isSubmitting}
         />
@@ -88,7 +116,7 @@ export default function LoginForm() {
           id="password"
           name="password"
           type="password"
-          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-zinc-400 shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
           autoComplete="current-password"
           disabled={isSubmitting}
         />
