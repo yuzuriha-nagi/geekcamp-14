@@ -1,5 +1,5 @@
 "use client";
-import { dummyTimetable } from "@/types/timetable";
+import { dummyTimetable, Lesson } from "@/types/timetable";
 import {
   Link,
   Table,
@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -84,16 +85,18 @@ export default function TimeTable() {
                   return (
                     <TableCell
                       key={day.value}
-                      align="center"
                       sx={{
                         borderRight:
                           index < days.length - 1
                             ? "1px solid #e0e0e0"
                             : "none",
                         backgroundColor: lesson ? "transparent" : "#f0f0f0",
+                        textAlign: "left",
+                        verticalAlign: "top",
+                        padding: "8px",
                       }}
                     >
-                      <Link>{lesson ? lesson.name : "-"}</Link>
+                      {lessonLink(lesson)}
                     </TableCell>
                   );
                 })}
@@ -104,5 +107,24 @@ export default function TimeTable() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function lessonLink(lesson: Lesson | null) {
+  if (!lesson) return "";
+  return (
+    <>
+      <Link target="_blank" rel="noopener noreferrer" fontSize={17}>
+        »{lesson.name}
+      </Link>
+      <br />
+      <Typography
+        fontSize={14}
+        color="text.secondary"
+        sx={{ paddingLeft: "16px" }}
+      >
+        担当: {lesson.teacher}
+      </Typography>
+    </>
   );
 }

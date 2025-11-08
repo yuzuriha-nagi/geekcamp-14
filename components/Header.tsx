@@ -21,7 +21,7 @@ export default function Header() {
             color: "#000",
           }}
         >
-          WebClass
+          WebSchool
         </Typography>
         <Box sx={{ fontSize: "14px", color: "#666" }}>
           <Typography component="strong" sx={{ fontWeight: "bold" }}>
