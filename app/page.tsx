@@ -18,7 +18,6 @@ export default function Home() {
   }, [router]);
 
   return <div />;
-=======
 import { dummyTimetable, Lesson } from "@/types/timetable";
 import {
   Link,
