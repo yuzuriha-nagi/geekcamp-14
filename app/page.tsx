@@ -32,6 +32,16 @@ export default function TimeTable() {
     const fetchAssignments = async () => {
       const supabase = createClient();
 
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setAssignments([]);
+        return;
+      }
+
       // Fetch assignments with lesson names (JOIN)
       const { data, error } = await supabase
         .from("assignments")
@@ -51,6 +61,16 @@ export default function TimeTable() {
         .order("deadline", { ascending: true });
 
       if (!error && data) {
+        // Fetch user's submissions
+        const { data: submissions } = await supabase
+          .from("submissions")
+          .select("assignment_id")
+          .eq("user_id", user.id);
+
+        const submittedAssignmentIds = new Set(
+          submissions?.map((s) => s.assignment_id) || []
+        );
+
         const assignmentsWithLesson: AssignmentWithLesson[] = data.map(
           (item: any) => ({
             id: item.id,
@@ -60,6 +80,7 @@ export default function TimeTable() {
             content_url: item.content_url,
             deadline: item.deadline,
             created_at: item.created_at,
+            submitted: submittedAssignmentIds.has(item.id),
           })
         );
         setAssignments(assignmentsWithLesson);

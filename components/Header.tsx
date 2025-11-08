@@ -11,6 +11,26 @@ export default async function Header() {
 
   const userEmail = user?.email || null;
 
+  // Fetch user role
+  let userRole: string | null = null;
+  if (user) {
+    const { data: roleData } = await supabase
+      .from("roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (roleData) {
+      // Convert role to Japanese
+      const roleMap: Record<string, string> = {
+        student: "(学生)",
+        teacher: "(教員)",
+        admin: "(管理者)",
+      };
+      userRole = roleMap[roleData.role] || null;
+    }
+  }
+
   return (
     <AppBar
       position="static"
@@ -34,7 +54,7 @@ export default async function Header() {
             WebCampus
           </Typography>
         </Link>
-        <UserMenu userEmail={userEmail} />
+        <UserMenu userEmail={userEmail} userRole={userRole} />
       </Toolbar>
     </AppBar>
   );

@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 
 type UserMenuProps = {
   userEmail: string | null;
+  userRole: string | null;
 };
 
-export default function UserMenu({ userEmail }: UserMenuProps) {
+export default function UserMenu({ userEmail, userRole }: UserMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
   const open = Boolean(anchorEl);
@@ -43,6 +44,7 @@ export default function UserMenu({ userEmail }: UserMenuProps) {
       >
         <Typography component="strong" sx={{ fontWeight: "bold" }}>
           {userEmail || "ゲスト"}
+          {userRole && ` ${userRole}`}
         </Typography>
       </Box>
       <Menu
