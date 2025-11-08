@@ -1,5 +1,6 @@
-import { AppBar, Toolbar, Typography, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Link } from "@mui/material";
 import { createClient } from "@/lib/supabase/server";
+import UserMenu from "./UserMenu";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -20,22 +21,20 @@ export default async function Header() {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Typography
-          variant="h6"
-          component="h1"
-          sx={{
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#000",
-          }}
-        >
-          WebSchool
-        </Typography>
-        <Box sx={{ fontSize: "14px", color: "#666" }}>
-          <Typography component="strong" sx={{ fontWeight: "bold" }}>
-            {userEmail || "ゲスト"}
+        <Link href="/" underline="none">
+          <Typography
+            variant="h6"
+            component="h1"
+            sx={{
+              fontSize: "20px",
+              fontWeight: "bold",
+              color: "#000",
+            }}
+          >
+            WebCampus
           </Typography>
-        </Box>
+        </Link>
+        <UserMenu userEmail={userEmail} />
       </Toolbar>
     </AppBar>
   );
