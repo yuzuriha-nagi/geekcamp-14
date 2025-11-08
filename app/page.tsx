@@ -10,8 +10,6 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import AssignmentList from "@/components/AssignmentList";
 
 export default function TimeTable() {
@@ -28,24 +26,15 @@ export default function TimeTable() {
   return (
     <div
       style={{
-        minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",
+        gap: "2rem",
+        padding: "2rem",
+        alignItems: "flex-start",
+        justifyContent: "center",
       }}
     >
-      <Header />
-      <main
-        style={{
-          flex: 1,
-          display: "flex",
-          gap: "2rem",
-          padding: "2rem",
-          alignItems: "flex-start",
-          justifyContent: "center",
-        }}
-      >
-        <AssignmentList assignments={dummyAssignments} />
-        <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
+      <AssignmentList assignments={dummyAssignments} />
+      <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
           <TableHead>
             <TableRow>
               <TableCell
@@ -114,8 +103,6 @@ export default function TimeTable() {
             ))}
           </TableBody>
         </Table>
-      </main>
-      <Footer />
     </div>
   );
 }
@@ -124,7 +111,7 @@ function lessonLink(lesson: Lesson | null) {
   if (!lesson) return "";
   return (
     <>
-      <Link target="_blank" rel="noopener noreferrer" fontSize={16}>
+      <Link href={`/course/${lesson.id}`} fontSize={16}>
         » {lesson.name}
       </Link>
       <br />
