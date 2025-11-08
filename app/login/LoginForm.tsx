@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Status =
   | { type: "idle" }
@@ -9,6 +10,7 @@ type Status =
   | { type: "success"; message: string };
 
 export default function LoginForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ type: "idle" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,37 +32,64 @@ export default function LoginForm() {
     setIsSubmitting(true);
     setStatus({ type: "idle" });
 
-    const credentials =
-      userId.includes("@")
-        ? ({ email: userId } as const)
-        : ({ phone: userId } as const);
+    const credentials = userId.includes("@")
+      ? ({ email: userId } as const)
+      : ({ phone: userId } as const);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       ...credentials,
       password,
     });
 
     if (error) {
       setStatus({ type: "error", message: error.message });
-    } else {
-      setStatus({
-        type: "success",
-        message: "ログインに成功しました。",
-      });
-      form.reset();
+      setIsSubmitting(false);
+      return;
     }
 
+    const user = data.user;
+    if (!user) {
+      setStatus({
+        type: "error",
+        message: "ユーザー情報の取得に失敗しました。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { data: roleData, error: roleError } = await supabase
+      .from("roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (roleError || !roleData?.role) {
+      setStatus({
+        type: "error",
+        message: "権限情報が見つかりません。管理者にお問い合わせください。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const destination =
+      roleData.role === "teacher" ? "/dashboard/teacher" : "/dashboard";
+
+    setStatus({
+      type: "success",
+      message: "ログインに成功しました。",
+    });
+    form.reset();
     setIsSubmitting(false);
+    router.push(destination);
+    router.refresh();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label
-          htmlFor="userId"
-          className="text-sm font-medium text-black"
-        >
+        <label htmlFor="userId" className="text-sm font-medium text-black">
           ユーザーID
         </label>
         <input
@@ -68,23 +97,20 @@ export default function LoginForm() {
           name="userId"
           type="text"
           placeholder="student@example.com"
-          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-zinc-400 shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
           autoComplete="username"
           disabled={isSubmitting}
         />
       </div>
       <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="text-sm font-medium text-black"
-        >
+        <label htmlFor="password" className="text-sm font-medium text-black">
           パスワード
         </label>
         <input
           id="password"
           name="password"
           type="password"
-          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-black shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm text-black placeholder:text-zinc-400 shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-200"
           autoComplete="current-password"
           disabled={isSubmitting}
         />
