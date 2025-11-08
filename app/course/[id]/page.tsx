@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Lesson } from "@/types/lesson";
 import { Material } from "@/types/material";
+import { Assignment } from "@/types/assignment";
 import {
   Box,
   Typography,
@@ -41,6 +42,15 @@ export default async function CoursePage({ params }: Props) {
     .order("created_at", { ascending: false });
 
   const materialsList = (materials || []) as Material[];
+
+  // Fetch assignments data (ordered by deadline ASC)
+  const { data: assignments, error: assignmentsError } = await supabase
+    .from("assignments")
+    .select("*")
+    .eq("lesson_id", id)
+    .order("deadline", { ascending: true });
+
+  const assignmentsList = (assignments || []) as Assignment[];
 
   return (
     <Box sx={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
@@ -110,6 +120,95 @@ export default async function CoursePage({ params }: Props) {
                   </TableCell>
                 </TableRow>
               ))}
+            </TableBody>
+          </Table>
+        )}
+      </Paper>
+
+      {/* Assignments List */}
+      <Paper sx={{ padding: "2rem", marginTop: "2rem" }}>
+        <Typography
+          variant="h5"
+          sx={{ marginBottom: "1.5rem", fontWeight: "bold" }}
+        >
+          課題一覧
+        </Typography>
+
+        {assignmentsList.length === 0 ? (
+          <Typography
+            sx={{
+              color: "text.secondary",
+              textAlign: "center",
+              padding: "2rem",
+            }}
+          >
+            課題がまだ登録されていません
+          </Typography>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", width: "40%" }}>
+                  課題名
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", width: "30%" }}>
+                  締切
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", width: "30%" }}>
+                  投稿日
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {assignmentsList.map((assignment) => {
+                const now = new Date();
+                const deadline = new Date(assignment.deadline);
+                const isOverdue = deadline < now;
+
+                return (
+                  <TableRow key={assignment.id}>
+                    <TableCell>
+                      <Link
+                        href={assignment.content_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ fontSize: "16px" }}
+                      >
+                        {assignment.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "14px",
+                        color: isOverdue ? "error.main" : "text.primary",
+                        fontWeight: isOverdue ? "bold" : "normal",
+                      }}
+                    >
+                      {new Date(assignment.deadline).toLocaleDateString(
+                        "ja-JP",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                      {isOverdue && " (期限切れ)"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: "14px", color: "text.secondary" }}>
+                      {new Date(assignment.created_at).toLocaleDateString(
+                        "ja-JP",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        }
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
