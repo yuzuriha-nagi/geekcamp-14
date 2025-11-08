@@ -18,6 +18,7 @@ export type AssignmentWithLesson = {
   content_url: string;
   deadline: string;
   created_at: string;
+  submitted?: boolean;
 };
 
 type Props = {
@@ -85,9 +86,7 @@ export default function AssignmentList({ assignments }: Props) {
                   {assignment.lesson_name}
                 </Typography>
                 <Link
-                  href={assignment.content_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/course/${assignment.lesson_id}/assignment/${assignment.id}`}
                   sx={{ fontSize: "14px" }}
                 >
                   {assignment.name}
@@ -97,7 +96,7 @@ export default function AssignmentList({ assignments }: Props) {
                 {calculateCountdown(assignment.deadline)}
               </TableCell>
               <TableCell sx={{ textAlign: "center", fontSize: "12px" }}>
-                未提出
+                {assignment.submitted ? "提出済" : "未提出"}
               </TableCell>
             </TableRow>
           ))}

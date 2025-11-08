@@ -48,5 +48,38 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely.
 
+  const isLoginPage = request.nextUrl.pathname === '/login'
+
+  // If user is not logged in and trying to access protected pages
+  if (!user && !isLoginPage) {
+    const redirectUrl = new URL('/login', request.url)
+    const redirectResponse = NextResponse.redirect(redirectUrl)
+    // Copy cookies from supabaseResponse to redirectResponse
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie)
+    })
+    return redirectResponse
+  }
+
+  // If user is logged in and trying to access login page, redirect to dashboard
+  if (user && isLoginPage) {
+    // Fetch user role
+    const { data: roleData } = await supabase
+      .from('roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const role = roleData?.role
+    const dashboardUrl = role === 'teacher' ? '/dashboard/teacher' : '/'
+    const redirectUrl = new URL(dashboardUrl, request.url)
+    const redirectResponse = NextResponse.redirect(redirectUrl)
+    // Copy cookies from supabaseResponse to redirectResponse
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie)
+    })
+    return redirectResponse
+  }
+
   return supabaseResponse
 }

@@ -169,9 +169,7 @@ export default async function CoursePage({ params }: Props) {
                   <TableRow key={assignment.id}>
                     <TableCell>
                       <Link
-                        href={assignment.content_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={`/course/${id}/assignment/${assignment.id}`}
                         sx={{ fontSize: "16px" }}
                       >
                         {assignment.name}
