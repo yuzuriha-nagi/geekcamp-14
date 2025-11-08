@@ -1,8 +1,8 @@
 "use client";
 
-import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Status =
   | { type: "idle" }
@@ -32,12 +32,11 @@ export default function LoginForm() {
     setIsSubmitting(true);
     setStatus({ type: "idle" });
 
-    const credentials =
-      userId.includes("@")
-        ? ({ email: userId } as const)
-        : ({ phone: userId } as const);
+    const credentials = userId.includes("@")
+      ? ({ email: userId } as const)
+      : ({ phone: userId } as const);
 
-    const supabase = getSupabaseBrowserClient();
+    const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithPassword({
       ...credentials,
       password,
@@ -92,15 +91,13 @@ export default function LoginForm() {
     form.reset();
     setIsSubmitting(false);
     router.push(destination);
+    router.refresh();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label
-          htmlFor="userId"
-          className="text-sm font-medium text-black"
-        >
+        <label htmlFor="userId" className="text-sm font-medium text-black">
           ユーザーID
         </label>
         <input
@@ -114,10 +111,7 @@ export default function LoginForm() {
         />
       </div>
       <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="text-sm font-medium text-black"
-        >
+        <label htmlFor="password" className="text-sm font-medium text-black">
           パスワード
         </label>
         <input
