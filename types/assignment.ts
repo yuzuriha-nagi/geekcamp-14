@@ -7,9 +7,9 @@ export type Assignment = {
 
 export const dummyAssignments: Assignment[] = [
   {
-    id: 1,
+    id: 155,
     lessonName: "プログラミング基礎",
-    deadline: new Date("2025-11-08T12:34:00"),
+    deadline: new Date("2025-11-08T18:34:00"),
     submitted: false,
   },
 ];
