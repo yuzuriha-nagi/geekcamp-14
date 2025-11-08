@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "ログイン | WebClass Clone",
-  description: "WebClassライクな学習ポータルのログインページ",
+  title: "ログイン | WebCampass",
+  description: "WebCampass",
 };
 
 export default function LoginPage() {
@@ -12,7 +12,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-10 shadow-lg">
         <header className="mb-10 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-            WebClass
+            WebCampass
           </p>
           <h1 className="mt-3 text-2xl font-semibold text-zinc-900">
             ログイン

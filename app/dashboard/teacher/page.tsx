@@ -1,84 +1,69 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "ダッシュボード | WebCampass",
-  description: "WebCampass",
+  title: "教員ダッシュボード | WebClass Clone",
+  description: "WebClass風の教員向け管理ページ",
 };
 
-const courses = [
+const classes = [
   {
-    code: "INF301",
-    title: "ソフトウェア工学",
-    teacher: "高橋 教授",
-    progress: 72,
-    nextDeadline: "課題3 / 12.08 締切",
+    code: "INF501",
+    title: "AI 応用演習",
+    students: 42,
+    submissions: "課題4: 36/42 提出済み",
+    nextEvent: "口頭試問 12/09",
   },
   {
-    code: "INF207",
-    title: "データベース設計",
-    teacher: "坂本 准教授",
-    progress: 48,
-    nextDeadline: "小テスト / 12.05 公開予定",
-  },
-  {
-    code: "INF114",
-    title: "UXデザイン論",
-    teacher: "伊藤 准教授",
-    progress: 91,
-    nextDeadline: "最終レポート / 12.18 締切",
+    code: "INF403",
+    title: "ヒューマンインタフェース論",
+    students: 58,
+    submissions: "小テスト2: 52/58 評価済み",
+    nextEvent: "課題2 公開予定 12/05",
   },
 ];
 
-const tasks = [
+const gradingQueue = [
   {
-    title: "AI応用演習: 課題4（画像分類）",
-    due: "12/06（金） 23:59",
-    status: "未提出",
+    course: "AI 応用演習",
+    task: "課題4（画像分類）",
+    pending: 6,
+    due: "評価期限 12/07",
   },
   {
-    title: "情報倫理: 小テスト2",
-    due: "12/04（水） 21:00",
-    status: "受験待ち",
-  },
-  {
-    title: "ソフトウェア工学: グループレビュー",
-    due: "12/10（火） 18:00",
-    status: "準備中",
+    course: "ソフトウェア工学",
+    task: "グループレビュー",
+    pending: 12,
+    due: "評価期限 12/10",
   },
 ];
 
-const announcements = [
+const notices = [
   {
     date: "2024/12/01",
-    title: "冬学期 ガイダンス資料を公開しました",
-    body: "履修予定の学生は事前に資料を確認の上、初回授業に参加してください。",
+    title: "冬学期の教材アップロード締切",
+    detail: "12/08 までに全クラスの教材データを登録してください。",
   },
   {
-    date: "2024/11/29",
-    title: "キャンパスネットワークメンテナンス",
-    body: "12/03 02:00-05:00 の間、WebClass へのアクセスが不安定になります。",
-  },
-  {
-    date: "2024/11/25",
-    title: "レポート提出フォーマット更新",
-    body: "ZIP 形式での提出に加えて PDF の添付が必須になりました。",
+    date: "2024/11/28",
+    title: "システムアップデート",
+    detail: "12/02 2:00-4:00 の間、教材アップロード機能が停止します。",
   },
 ];
 
-export default function DashboardPage() {
+export default function TeacherDashboardPage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-zinc-400">
-              WebCampass
+              WebClass
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-zinc-900">
-              ダッシュボード
+              教員ダッシュボード
             </h1>
             <p className="text-sm text-zinc-500">
-              受講コースの進捗、課題、重要なお知らせをまとめて確認できます。
+              クラス管理、課題配信、採点作業をまとめて確認できます。
             </p>
           </div>
           <Link
@@ -91,53 +76,35 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
-        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-zinc-900">
-                  受講中のコース
-                </h2>
-                <p className="text-sm text-zinc-500">
-                  最近更新された3件のコースを表示しています。
-                </p>
-              </div>
+              <h2 className="text-lg font-semibold text-zinc-900">
+                担当クラス
+              </h2>
               <button className="text-sm font-semibold text-zinc-900 underline-offset-4 hover:underline">
-                コース一覧
+                クラス管理
               </button>
             </div>
-            <div className="mt-6 space-y-4">
-              {courses.map((course) => (
+            <div className="mt-5 space-y-4">
+              {classes.map((item) => (
                 <article
-                  key={course.code}
+                  key={item.code}
                   className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4"
                 >
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
-                      {course.code}
+                      {item.code}
                     </span>
-                    <p className="text-sm font-medium text-zinc-900">
-                      {course.teacher}
+                    <p className="text-sm font-medium text-zinc-500">
+                      受講者 {item.students} 名
                     </p>
                   </div>
-                  <h3 className="mt-2 text-lg font-semibold text-zinc-900">
-                    {course.title}
+                  <h3 className="mt-1 text-lg font-semibold text-zinc-900">
+                    {item.title}
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {course.nextDeadline}
-                  </p>
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                      <span>進捗</span>
-                      <span>{course.progress}%</span>
-                    </div>
-                    <div className="mt-2 h-2 rounded-full bg-zinc-200">
-                      <div
-                        className="h-full rounded-full bg-zinc-900"
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                  </div>
+                  <p className="mt-1 text-sm text-zinc-500">{item.submissions}</p>
+                  <p className="text-xs text-zinc-500">{item.nextEvent}</p>
                 </article>
               ))}
             </div>
@@ -146,30 +113,33 @@ export default function DashboardPage() {
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-900">
-                緊急タスク
+                採点キュー
               </h2>
               <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                Tasks
+                Grading
               </span>
             </div>
-            <ul className="mt-4 space-y-4">
-              {tasks.map((task) => (
-                <li
-                  key={task.title}
+            <div className="mt-4 space-y-4">
+              {gradingQueue.map((queue) => (
+                <article
+                  key={queue.task}
                   className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-4"
                 >
                   <p className="text-xs font-medium text-zinc-500">
-                    {task.due}
+                    {queue.course}
                   </p>
                   <p className="mt-1 text-sm font-semibold text-zinc-900">
-                    {task.title}
+                    {queue.task}
                   </p>
-                  <p className="text-xs text-zinc-500">{task.status}</p>
-                </li>
+                  <div className="mt-1 flex items-center justify-between text-xs text-zinc-500">
+                    <span>未評価 {queue.pending} 件</span>
+                    <span>{queue.due}</span>
+                  </div>
+                </article>
               ))}
-            </ul>
+            </div>
             <button className="mt-5 w-full rounded-2xl border border-dashed border-zinc-200 py-3 text-sm font-semibold text-zinc-500 hover:border-zinc-300 hover:text-zinc-900">
-              課題提出ページを開く
+              採点画面へ移動
             </button>
           </div>
         </section>
@@ -177,24 +147,26 @@ export default function DashboardPage() {
         <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-900">お知らせ</h2>
+              <h2 className="text-lg font-semibold text-zinc-900">
+                お知らせ / 校務連絡
+              </h2>
               <button className="text-sm font-semibold text-zinc-900 underline-offset-4 hover:underline">
                 全件表示
               </button>
             </div>
             <div className="mt-4 space-y-4">
-              {announcements.map((item) => (
+              {notices.map((notice) => (
                 <article
-                  key={item.title}
+                  key={notice.title}
                   className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.3em] text-zinc-400">
-                    {item.date}
+                    {notice.date}
                   </p>
                   <h3 className="mt-1 text-sm font-semibold text-zinc-900">
-                    {item.title}
+                    {notice.title}
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-500">{item.body}</p>
+                  <p className="mt-1 text-sm text-zinc-500">{notice.detail}</p>
                 </article>
               ))}
             </div>
@@ -203,38 +175,36 @@ export default function DashboardPage() {
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-900">
-                サポート / クイックリンク
+                クイックアクション
               </h2>
               <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                Support
+                Actions
               </span>
             </div>
             <div className="mt-5 space-y-4">
               <div className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                  FAQ
+                  課題を公開
                 </p>
                 <p className="mt-1 text-sm font-medium text-zinc-900">
-                  ログイン・課題提出時のトラブルシューティング
+                  新しい課題やテストを作成し、公開スケジュールを設定します。
                 </p>
               </div>
               <div className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                  Support Desk
+                  出席レポート
                 </p>
                 <p className="mt-1 text-sm text-zinc-500">
-                  平日 9:00-18:00 / helpdesk@example.ac.jp / 03-1234-5678
+                  出席率や学習ログを CSV としてエクスポートできます。
                 </p>
               </div>
               <div className="rounded-2xl border border-dashed border-zinc-200 p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-zinc-400">
-                  Quick Links
+                  Support Desk
                 </p>
-                <ul className="mt-2 space-y-1 text-sm font-medium text-zinc-900">
-                  <li>・履修登録 / 成績参照</li>
-                  <li>・オンライン会議ルーム</li>
-                  <li>・図書館 / 資料検索システム</li>
-                </ul>
+                <p className="mt-1 text-sm text-zinc-500">
+                  helpdesk@example.ac.jp / 内線 1234
+                </p>
               </div>
             </div>
           </div>
