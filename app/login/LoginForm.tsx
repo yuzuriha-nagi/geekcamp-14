@@ -73,8 +73,16 @@ export default function LoginForm() {
       return;
     }
 
-    const destination =
-      roleData.role === "teacher" ? "/dashboard/teacher" : "/dashboard";
+    let destination = "/";
+    if (roleData.role === "teacher") {
+      destination = "/dashboard/teacher";
+    } else if (roleData.role === "admin") {
+      destination = "/dashboard/admin";
+    } else if (roleData.role === "student") {
+      destination = "/";
+    } else {
+      destination = "/dashboard";
+    }
 
     setStatus({
       type: "success",

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ScheduleTable from "@/components/dashboard/ScheduleTable";
 
 export const metadata = {
   title: "ダッシュボード | WebCampass",
@@ -33,12 +32,30 @@ const announcements = [
   {
     date: "2024/11/29",
     title: "キャンパスネットワークメンテナンス",
-    body: "12/03 02:00-05:00 の間、WebClass へのアクセスが不安定になります。",
+    body: "12/03 02:00-05:00 の間、WebCampass へのアクセスが不安定になります。",
   },
   {
     date: "2024/11/25",
     title: "レポート提出フォーマット更新",
     body: "ZIP 形式での提出に加えて PDF の添付が必須になりました。",
+  },
+];
+
+const highlights = [
+  {
+    title: "今週の提出物",
+    value: "4 件",
+    description: "締切まで 3 日以内: 2 件",
+  },
+  {
+    title: "未読のお知らせ",
+    value: "5 件",
+    description: "重要マーク付き: 1 件",
+  },
+  {
+    title: "今日の予定",
+    value: "2 コマ",
+    description: "午前: 対面 / 午後: オンライン",
   },
 ];
 
@@ -77,7 +94,37 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <ScheduleTable />
+          <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-zinc-900">
+                  今日の概況
+                </h2>
+                <p className="text-sm text-zinc-500">
+                  提出物や連絡状況をざっくり把握できます。
+                </p>
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+                Overview
+              </span>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {highlights.map((item) => (
+                <article
+                  key={item.title}
+                  className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+                    {item.title}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-zinc-900">
+                    {item.value}
+                  </p>
+                  <p className="text-xs text-zinc-500">{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
 
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
