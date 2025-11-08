@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 import { Lesson } from "@/types/lesson";
 import { Material } from "@/types/material";
 import {
@@ -20,7 +20,7 @@ type Props = {
 
 export default async function CoursePage({ params }: Props) {
   const { id } = await params;
-  const supabase = getSupabaseServerClient();
+  const supabase = await createClient();
 
   // Fetch lesson data
   const { data: lesson, error: lessonError } = await supabase

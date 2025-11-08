@@ -1,26 +1,14 @@
-"use client";
 import { AppBar, Toolbar, Typography, Box } from "@mui/material";
-import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Header() {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+export default async function Header() {
+  const supabase = await createClient();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUserEmail(user?.email || null);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    fetchUser();
-  }, []);
+  const userEmail = user?.email || null;
 
   return (
     <AppBar
@@ -36,7 +24,6 @@ export default function Header() {
           variant="h6"
           component="h1"
           sx={{
-            margin_left: "100rem",
             fontSize: "20px",
             fontWeight: "bold",
             color: "#000",

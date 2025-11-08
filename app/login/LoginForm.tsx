@@ -1,6 +1,6 @@
 "use client";
 
-import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useState } from "react";
 
 type Status =
@@ -35,7 +35,7 @@ export default function LoginForm() {
         ? ({ email: userId } as const)
         : ({ phone: userId } as const);
 
-    const supabase = getSupabaseBrowserClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       ...credentials,
       password,
