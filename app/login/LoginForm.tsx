@@ -14,7 +14,8 @@ export default function LoginForm() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const userId = String(formData.get("userId") ?? "").trim();
     const password = String(formData.get("password") ?? "");
 
@@ -47,7 +48,7 @@ export default function LoginForm() {
         type: "success",
         message: "ログインに成功しました。",
       });
-      event.currentTarget.reset();
+      form.reset();
     }
 
     setIsSubmitting(false);
