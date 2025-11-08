@@ -1,65 +1,108 @@
-import Image from "next/image";
+"use client";
+import { dummyTimetable } from "@/types/timetable";
+import {
+  Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-export default function Home() {
+export default function TimeTable() {
+  const timetable = dummyTimetable;
+  const periods = [1, 2, 3, 4, 5, 6];
+  const days = [
+    { label: "月曜日", value: 1 },
+    { label: "火曜日", value: 2 },
+    { label: "水曜日", value: 3 },
+    { label: "木曜日", value: 4 },
+    { label: "金曜日", value: 5 },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Header />
+      <main style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+        <Table
+          sx={{ border: "1px solid #e0e0e0", width: "1000px", margin: "2rem" }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{
+                  borderRight: "1px solid #e0e0e0",
+                  backgroundColor: "#f5f5f5",
+                  width: "80px",
+                  height: "20px",
+                  padding: "8px",
+                }}
+              ></TableCell>
+              {days.map((day, index) => (
+                <TableCell
+                  key={day.value}
+                  align="center"
+                  sx={{
+                    borderRight:
+                      index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                    backgroundColor: "#f5f5f5",
+                    width: "800px",
+                    height: "20px",
+                    padding: "8px",
+                  }}
+                >
+                  {day.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {periods.map((period) => (
+              <TableRow key={period}>
+                <TableCell
+                  sx={{
+                    borderRight: "1px solid #e0e0e0",
+                    backgroundColor: "fafafa",
+                    width: "100px",
+                    height: "100px",
+                    padding: "0px",
+                    textAlign: "center",
+                  }}
+                >
+                  {period}限
+                </TableCell>
+                {days.map((day, index) => {
+                  const lesson = timetable[day.value]?.[period];
+                  return (
+                    <TableCell
+                      key={day.value}
+                      align="center"
+                      sx={{
+                        borderRight:
+                          index < days.length - 1
+                            ? "1px solid #e0e0e0"
+                            : "none",
+                        backgroundColor: lesson ? "transparent" : "#f0f0f0",
+                      }}
+                    >
+                      <Link>{lesson ? lesson.name : "-"}</Link>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </main>
+      <Footer />
     </div>
   );
 }
