@@ -1,33 +1,10 @@
 import Link from "next/link";
+import ScheduleTable from "@/components/dashboard/ScheduleTable";
 
 export const metadata = {
   title: "ダッシュボード | WebCampass",
   description: "WebCampass",
 };
-
-const courses = [
-  {
-    code: "INF301",
-    title: "ソフトウェア工学",
-    teacher: "高橋 教授",
-    progress: 72,
-    nextDeadline: "課題3 / 12.08 締切",
-  },
-  {
-    code: "INF207",
-    title: "データベース設計",
-    teacher: "坂本 准教授",
-    progress: 48,
-    nextDeadline: "小テスト / 12.05 公開予定",
-  },
-  {
-    code: "INF114",
-    title: "UXデザイン論",
-    teacher: "伊藤 准教授",
-    progress: 91,
-    nextDeadline: "最終レポート / 12.18 締切",
-  },
-];
 
 const tasks = [
   {
@@ -81,67 +58,26 @@ export default function DashboardPage() {
               受講コースの進捗、課題、重要なお知らせをまとめて確認できます。
             </p>
           </div>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full border border-zinc-900 px-5 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-900 hover:text-white"
-          >
-            ログアウト
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/dashboard/manage"
+              className="inline-flex items-center justify-center rounded-full border border-zinc-200 px-5 py-2 text-sm font-semibold text-zinc-600 transition hover:border-zinc-900 hover:text-zinc-900"
+            >
+              学校設定
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-full border border-zinc-900 px-5 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-900 hover:text-white"
+            >
+              ログアウト
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-zinc-900">
-                  受講中のコース
-                </h2>
-                <p className="text-sm text-zinc-500">
-                  最近更新された3件のコースを表示しています。
-                </p>
-              </div>
-              <button className="text-sm font-semibold text-zinc-900 underline-offset-4 hover:underline">
-                コース一覧
-              </button>
-            </div>
-            <div className="mt-6 space-y-4">
-              {courses.map((course) => (
-                <article
-                  key={course.code}
-                  className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4"
-                >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
-                      {course.code}
-                    </span>
-                    <p className="text-sm font-medium text-zinc-900">
-                      {course.teacher}
-                    </p>
-                  </div>
-                  <h3 className="mt-2 text-lg font-semibold text-zinc-900">
-                    {course.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {course.nextDeadline}
-                  </p>
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                      <span>進捗</span>
-                      <span>{course.progress}%</span>
-                    </div>
-                    <div className="mt-2 h-2 rounded-full bg-zinc-200">
-                      <div
-                        className="h-full rounded-full bg-zinc-900"
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+          <ScheduleTable />
 
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
