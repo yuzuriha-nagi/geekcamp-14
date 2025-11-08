@@ -21,7 +21,11 @@ export const dummyTimetable: Timetable = {
     6: null,
   },
   1: {
-    1: { id: "1", name: "電気回路", teacher: "田中" },
+    1: {
+      id: "1",
+      name: "R07［3I］電気回路AI",
+      teacher: "情報システムコース 田中",
+    },
     2: null,
     3: null,
     4: null,

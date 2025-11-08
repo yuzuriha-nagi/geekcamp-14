@@ -1,5 +1,6 @@
 "use client";
 import { dummyTimetable, Lesson } from "@/types/timetable";
+import { dummyAssignments } from "@/types/assignment";
 import {
   Link,
   Table,
@@ -11,6 +12,7 @@ import {
 } from "@mui/material";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AssignmentList from "@/components/AssignmentList";
 
 export default function TimeTable() {
   const timetable = dummyTimetable;
@@ -32,16 +34,24 @@ export default function TimeTable() {
       }}
     >
       <Header />
-      <main style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-        <Table
-          sx={{ border: "1px solid #e0e0e0", width: "1000px", margin: "2rem" }}
-        >
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          gap: "2rem",
+          padding: "2rem",
+          alignItems: "flex-start",
+          justifyContent: "center",
+        }}
+      >
+        <AssignmentList assignments={dummyAssignments} />
+        <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
           <TableHead>
             <TableRow>
               <TableCell
                 sx={{
                   borderRight: "1px solid #e0e0e0",
-                  backgroundColor: "#f5f5f5",
+                  backgroundColor: "#eaf4fc",
                   width: "80px",
                   height: "20px",
                   padding: "8px",
@@ -54,7 +64,7 @@ export default function TimeTable() {
                   sx={{
                     borderRight:
                       index < days.length - 1 ? "1px solid #e0e0e0" : "none",
-                    backgroundColor: "#f5f5f5",
+                    backgroundColor: "#eaf4fc",
                     width: "800px",
                     height: "20px",
                     padding: "8px",
@@ -71,9 +81,9 @@ export default function TimeTable() {
                 <TableCell
                   sx={{
                     borderRight: "1px solid #e0e0e0",
-                    backgroundColor: "fafafa",
-                    width: "100px",
-                    height: "100px",
+                    backgroundColor: "#eaf4fc",
+                    width: "200px",
+                    height: "10px",
                     padding: "0px",
                     textAlign: "center",
                   }}
@@ -114,14 +124,14 @@ function lessonLink(lesson: Lesson | null) {
   if (!lesson) return "";
   return (
     <>
-      <Link target="_blank" rel="noopener noreferrer" fontSize={17}>
-        »{lesson.name}
+      <Link target="_blank" rel="noopener noreferrer" fontSize={16}>
+        » {lesson.name}
       </Link>
       <br />
       <Typography
         fontSize={14}
         color="text.secondary"
-        sx={{ paddingLeft: "16px" }}
+        sx={{ paddingLeft: "20px" }}
       >
         担当: {lesson.teacher}
       </Typography>
