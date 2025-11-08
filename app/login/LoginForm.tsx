@@ -1,6 +1,7 @@
 "use client";
 
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 type Status =
@@ -9,6 +10,7 @@ type Status =
   | { type: "success"; message: string };
 
 export default function LoginForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ type: "idle" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,15 +45,17 @@ export default function LoginForm() {
 
     if (error) {
       setStatus({ type: "error", message: error.message });
-    } else {
-      setStatus({
-        type: "success",
-        message: "ログインに成功しました。",
-      });
-      form.reset();
+      setIsSubmitting(false);
+      return;
     }
 
+    setStatus({
+      type: "success",
+      message: "ログインに成功しました。",
+    });
+    form.reset();
     setIsSubmitting(false);
+    router.push("/dashboard");
   };
 
   return (
