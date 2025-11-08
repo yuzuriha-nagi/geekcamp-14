@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Typography, Link } from "@mui/material";
+import { AppBar, Toolbar, Typography } from "@mui/material";
+import NextLink from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "./UserMenu";
 
@@ -41,19 +42,36 @@ export default async function Header() {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Link href="/" underline="none">
-          <Typography
-            variant="h6"
-            component="h1"
-            sx={{
-              fontSize: "20px",
-              fontWeight: "bold",
-              color: "#000",
-            }}
+        <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+          <NextLink href="/" style={{ textDecoration: "none" }}>
+            <Typography
+              variant="h6"
+              component="span"
+              sx={{
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: "#000",
+              }}
+            >
+              WebCampus
+            </Typography>
+          </NextLink>
+          <NextLink
+            href="/notifications"
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            WebCampus
-          </Typography>
-        </Link>
+            <Typography
+              component="span"
+              sx={{
+                fontSize: "0.95rem",
+                color: "#71717a",
+                "&:hover": { color: "#18181b" },
+              }}
+            >
+              通知
+            </Typography>
+          </NextLink>
+        </div>
         <UserMenu userEmail={userEmail} userRole={userRole} />
       </Toolbar>
     </AppBar>
