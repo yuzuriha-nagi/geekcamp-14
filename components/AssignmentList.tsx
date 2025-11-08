@@ -9,28 +9,44 @@ import {
   TableRow,
   Link,
 } from "@mui/material";
-import { Assignment } from "@/types/assignment";
+
+export type AssignmentWithLesson = {
+  id: string;
+  lesson_id: string;
+  lesson_name: string;
+  name: string;
+  content_url: string;
+  deadline: string;
+  created_at: string;
+};
 
 type Props = {
-  assignments: Assignment[];
+  assignments: AssignmentWithLesson[];
 };
 
 export default function AssignmentList({ assignments }: Props) {
-  const calculateCountdown = (deadline: Date) => {
+  const calculateCountdown = (deadlineStr: string) => {
     const now = new Date();
+    const deadline = new Date(deadlineStr);
     const diff = deadline.getTime() - now.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
     if (diff < 0) return "期限切れ";
-    if (days > 0) return `残り${days}日`;
-    return `残り${hours}時間`;
+    if (days >= 1) return `${days}日`;
+
+    // 1日未満の場合は残り時間をHH:MM形式で表示
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}`;
   };
 
   return (
     <Box
       sx={{
-        width: "350px",
+        width: "380px",
         border: "1px solid #e0e0e0",
         borderRadius: "4px",
         padding: "16px",
@@ -46,16 +62,16 @@ export default function AssignmentList({ assignments }: Props) {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold", width: "40%" }}>
-              授業名
+            <TableCell sx={{ fontWeight: "bold", width: "50%" }}>
+              課題
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", width: "30%" }}>
-              期限
+              残り時間
             </TableCell>
             <TableCell
-              sx={{ fontWeight: "bold", width: "30%", textAlign: "center" }}
+              sx={{ fontWeight: "bold", width: "20%", textAlign: "center" }}
             >
-              提出
+              状態
             </TableCell>
           </TableRow>
         </TableHead>
@@ -63,19 +79,25 @@ export default function AssignmentList({ assignments }: Props) {
           {assignments.map((assignment) => (
             <TableRow key={assignment.id}>
               <TableCell>
+                <Typography
+                  sx={{ fontSize: "11px", color: "text.secondary", mb: 0.5 }}
+                >
+                  {assignment.lesson_name}
+                </Typography>
                 <Link
-                  href={"/course/" + assignment.id}
+                  href={assignment.content_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  sx={{ fontSize: "14px" }}
                 >
-                  {assignment.lessonName}
+                  {assignment.name}
                 </Link>
               </TableCell>
               <TableCell sx={{ fontSize: "12px" }}>
                 {calculateCountdown(assignment.deadline)}
               </TableCell>
               <TableCell sx={{ textAlign: "center", fontSize: "12px" }}>
-                {assignment.submitted ? "提出済み" : "未提出"}
+                未提出
               </TableCell>
             </TableRow>
           ))}

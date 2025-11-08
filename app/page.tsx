@@ -1,6 +1,5 @@
 "use client";
 import { dummyTimetable, Lesson } from "@/types/timetable";
-import { dummyAssignments } from "@/types/assignment";
 import {
   Link,
   Table,
@@ -10,7 +9,11 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import AssignmentList from "@/components/AssignmentList";
+import AssignmentList, {
+  AssignmentWithLesson,
+} from "@/components/AssignmentList";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function TimeTable() {
   const timetable = dummyTimetable;
@@ -23,6 +26,49 @@ export default function TimeTable() {
     { label: "金曜日", value: 5 },
   ];
 
+  const [assignments, setAssignments] = useState<AssignmentWithLesson[]>([]);
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      const supabase = createClient();
+
+      // Fetch assignments with lesson names (JOIN)
+      const { data, error } = await supabase
+        .from("assignments")
+        .select(
+          `
+          id,
+          lesson_id,
+          name,
+          content_url,
+          deadline,
+          created_at,
+          lessons (
+            name
+          )
+        `
+        )
+        .order("deadline", { ascending: true });
+
+      if (!error && data) {
+        const assignmentsWithLesson: AssignmentWithLesson[] = data.map(
+          (item: any) => ({
+            id: item.id,
+            lesson_id: item.lesson_id,
+            lesson_name: item.lessons?.name || "不明な授業",
+            name: item.name,
+            content_url: item.content_url,
+            deadline: item.deadline,
+            created_at: item.created_at,
+          })
+        );
+        setAssignments(assignmentsWithLesson);
+      }
+    };
+
+    fetchAssignments();
+  }, []);
+
   return (
     <div
       style={{
@@ -33,76 +79,74 @@ export default function TimeTable() {
         justifyContent: "center",
       }}
     >
-      <AssignmentList assignments={dummyAssignments} />
+      <AssignmentList assignments={assignments} />
       <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
-          <TableHead>
-            <TableRow>
+        <TableHead>
+          <TableRow>
+            <TableCell
+              sx={{
+                borderRight: "1px solid #e0e0e0",
+                backgroundColor: "#eaf4fc",
+                width: "80px",
+                height: "20px",
+                padding: "8px",
+              }}
+            ></TableCell>
+            {days.map((day, index) => (
+              <TableCell
+                key={day.value}
+                align="center"
+                sx={{
+                  borderRight:
+                    index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                  backgroundColor: "#eaf4fc",
+                  width: "800px",
+                  height: "20px",
+                  padding: "8px",
+                }}
+              >
+                {day.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {periods.map((period) => (
+            <TableRow key={period}>
               <TableCell
                 sx={{
                   borderRight: "1px solid #e0e0e0",
                   backgroundColor: "#eaf4fc",
-                  width: "80px",
-                  height: "20px",
-                  padding: "8px",
+                  width: "200px",
+                  height: "10px",
+                  padding: "0px",
+                  textAlign: "center",
                 }}
-              ></TableCell>
-              {days.map((day, index) => (
-                <TableCell
-                  key={day.value}
-                  align="center"
-                  sx={{
-                    borderRight:
-                      index < days.length - 1 ? "1px solid #e0e0e0" : "none",
-                    backgroundColor: "#eaf4fc",
-                    width: "800px",
-                    height: "20px",
-                    padding: "8px",
-                  }}
-                >
-                  {day.label}
-                </TableCell>
-              ))}
+              >
+                {period}限
+              </TableCell>
+              {days.map((day, index) => {
+                const lesson = timetable[day.value]?.[period];
+                return (
+                  <TableCell
+                    key={day.value}
+                    sx={{
+                      borderRight:
+                        index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                      backgroundColor: lesson ? "transparent" : "#f0f0f0",
+                      textAlign: "left",
+                      verticalAlign: "top",
+                      padding: "8px",
+                    }}
+                  >
+                    {lessonLink(lesson)}
+                  </TableCell>
+                );
+              })}
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {periods.map((period) => (
-              <TableRow key={period}>
-                <TableCell
-                  sx={{
-                    borderRight: "1px solid #e0e0e0",
-                    backgroundColor: "#eaf4fc",
-                    width: "200px",
-                    height: "10px",
-                    padding: "0px",
-                    textAlign: "center",
-                  }}
-                >
-                  {period}限
-                </TableCell>
-                {days.map((day, index) => {
-                  const lesson = timetable[day.value]?.[period];
-                  return (
-                    <TableCell
-                      key={day.value}
-                      sx={{
-                        borderRight:
-                          index < days.length - 1
-                            ? "1px solid #e0e0e0"
-                            : "none",
-                        backgroundColor: lesson ? "transparent" : "#f0f0f0",
-                        textAlign: "left",
-                        verticalAlign: "top",
-                        padding: "8px",
-                      }}
-                    >
-                      {lessonLink(lesson)}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
