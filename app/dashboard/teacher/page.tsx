@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "教員ダッシュボード | WebClass Clone",
-  description: "WebClass風の教員向け管理ページ",
+  title: "教員ダッシュボード | WebCampass Clone",
+  description: "WebCampass風の教員向け管理ページ",
 };
 
 const classes = [
@@ -57,7 +57,7 @@ export default function TeacherDashboardPage() {
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-zinc-400">
-              WebClass
+              WebCampass
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-zinc-900">
               教員ダッシュボード
@@ -103,7 +103,9 @@ export default function TeacherDashboardPage() {
                   <h3 className="mt-1 text-lg font-semibold text-zinc-900">
                     {item.title}
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-500">{item.submissions}</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {item.submissions}
+                  </p>
                   <p className="text-xs text-zinc-500">{item.nextEvent}</p>
                 </article>
               ))}
