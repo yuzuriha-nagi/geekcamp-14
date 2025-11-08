@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import SupabaseListener from "@/components/SupabaseListener";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
         }}
       >
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <SupabaseListener />
           <Header />
           <main style={{ flex: 1 }}>{children}</main>
           <Footer />

@@ -1,23 +1,6 @@
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+"use client";
 
-export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data?.user) {
-        router.replace("/login");
-      }
-    };
-
-    checkSession();
-  }, [router]);
-
-  return <div />;
+import { useEffect, useState } from "react";
 import { dummyTimetable, Lesson } from "@/types/timetable";
 import {
   Link,
@@ -31,10 +14,9 @@ import {
 import AssignmentList, {
   AssignmentWithLesson,
 } from "@/components/AssignmentList";
-import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function TimeTable() {
+export default function Home() {
   const timetable = dummyTimetable;
   const periods = [1, 2, 3, 4, 5, 6];
   const days = [
@@ -50,8 +32,6 @@ export default function TimeTable() {
   useEffect(() => {
     const fetchAssignments = async () => {
       const supabase = createClient();
-
-      // Get current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -61,7 +41,6 @@ export default function TimeTable() {
         return;
       }
 
-      // Fetch assignments with lesson names (JOIN)
       const { data, error } = await supabase
         .from("assignments")
         .select(
@@ -75,35 +54,38 @@ export default function TimeTable() {
           lessons (
             name
           )
-        `
+        `,
         )
         .order("deadline", { ascending: true });
 
-      if (!error && data) {
-        // Fetch user's submissions
-        const { data: submissions } = await supabase
-          .from("submissions")
-          .select("assignment_id")
-          .eq("user_id", user.id);
-
-        const submittedAssignmentIds = new Set(
-          submissions?.map((s) => s.assignment_id) || []
-        );
-
-        const assignmentsWithLesson: AssignmentWithLesson[] = data.map(
-          (item: any) => ({
-            id: item.id,
-            lesson_id: item.lesson_id,
-            lesson_name: item.lessons?.name || "不明な授業",
-            name: item.name,
-            content_url: item.content_url,
-            deadline: item.deadline,
-            created_at: item.created_at,
-            submitted: submittedAssignmentIds.has(item.id),
-          })
-        );
-        setAssignments(assignmentsWithLesson);
+      if (error || !data) {
+        setAssignments([]);
+        return;
       }
+
+      const { data: submissions } = await supabase
+        .from("submissions")
+        .select("assignment_id")
+        .eq("user_id", user.id);
+
+      const submittedAssignmentIds = new Set(
+        submissions?.map((s) => s.assignment_id) ?? [],
+      );
+
+      const assignmentsWithLesson: AssignmentWithLesson[] = data.map(
+        (item: any) => ({
+          id: item.id,
+          lesson_id: item.lesson_id,
+          lesson_name: item.lessons?.name ?? "不明な授業",
+          name: item.name,
+          content_url: item.content_url,
+          deadline: item.deadline,
+          created_at: item.created_at,
+          submitted: submittedAssignmentIds.has(item.id),
+        }),
+      );
+
+      setAssignments(assignmentsWithLesson);
     };
 
     fetchAssignments();
@@ -131,7 +113,7 @@ export default function TimeTable() {
                 height: "20px",
                 padding: "8px",
               }}
-            ></TableCell>
+            />
             {days.map((day, index) => (
               <TableCell
                 key={day.value}
@@ -172,7 +154,9 @@ export default function TimeTable() {
                     key={day.value}
                     sx={{
                       borderRight:
-                        index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                        index < days.length - 1
+                          ? "1px solid #e0e0e0"
+                          : "none",
                       backgroundColor: lesson ? "transparent" : "#f0f0f0",
                       textAlign: "left",
                       verticalAlign: "top",

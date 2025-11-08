@@ -73,15 +73,14 @@ export default function LoginForm() {
       return;
     }
 
+    const normalizedRole = roleData.role?.toLowerCase();
     let destination = "/";
-    if (roleData.role === "teacher") {
+    if (normalizedRole === "teacher") {
       destination = "/dashboard/teacher";
-    } else if (roleData.role === "admin") {
+    } else if (normalizedRole === "admin") {
       destination = "/dashboard/admin";
-    } else if (roleData.role === "student") {
+    } else if (normalizedRole === "student" || normalizedRole === "students") {
       destination = "/";
-    } else {
-      destination = "/dashboard";
     }
 
     setStatus({
