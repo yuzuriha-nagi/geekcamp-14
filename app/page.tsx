@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { dummyTimetable, Lesson } from "@/types/timetable";
 import {
+  Box,
   FormControl,
   InputLabel,
   Link,
@@ -15,6 +16,8 @@ import {
   TableHead,
   TableRow,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
@@ -89,6 +92,11 @@ export default function Home() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "pending" | "submitted" | "overdue"
   >("all");
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
+    const today = new Date().getDay();
+    const weekday = today === 0 ? 7 : today;
+    return weekday >= 1 && weekday <= 5 ? weekday : 1;
+  });
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -277,47 +285,154 @@ export default function Home() {
     setStatusFilter(value);
   };
 
+  const selectedDayLabel =
+    days.find((day) => day.value === selectedDay)?.label ?? "";
+  const handleDayChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    value: number | null,
+  ) => {
+    if (value !== null) {
+      setSelectedDay(value);
+    }
+  };
+  const dayLessons = timetable[selectedDay] ?? {};
+
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: { xs: "1.5rem", md: "2rem" },
         display: "flex",
-        gap: "2rem",
-        padding: "2rem",
-        alignItems: "flex-start",
-        justifyContent: "center",
+        flexDirection: "column",
+        gap: "1.5rem",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <div
-          style={{
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #e4e4e7",
+          borderRadius: "12px",
+          padding: "16px",
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: "1rem",
+        }}
+      >
+        <TextField
+          fullWidth
+          label="課題を検索"
+          placeholder="キーワードで絞り込み"
+          size="small"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+        />
+        <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: "200px" } }}>
+          <InputLabel id="assignment-status-filter-label">状態</InputLabel>
+          <Select
+            labelId="assignment-status-filter-label"
+            value={statusFilter}
+            label="状態"
+            onChange={handleFilterChange}
+          >
+            <MenuItem value="all">すべて</MenuItem>
+            <MenuItem value="pending">未提出（期限内）</MenuItem>
+            <MenuItem value="overdue">未提出（期限切れ）</MenuItem>
+            <MenuItem value="submitted">提出済</MenuItem>
+          </Select>
+        </FormControl>
+      </Paper>
+
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #e4e4e7",
+          borderRadius: "12px",
+          padding: "16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+        }}
+      >
+        <Box
+          sx={{
             display: "flex",
-            flexDirection: "column",
-            gap: "0.75rem",
-            width: "380px",
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 1,
           }}
         >
-          <TextField
-            label="課題を検索"
-            placeholder="キーワードで絞り込み"
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            {selectedDayLabel}の時間割
+          </Typography>
+          <ToggleButtonGroup
             size="small"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
-          <FormControl size="small">
-            <InputLabel id="assignment-status-filter-label">状態</InputLabel>
-            <Select
-              labelId="assignment-status-filter-label"
-              value={statusFilter}
-              label="状態"
-              onChange={handleFilterChange}
-            >
-              <MenuItem value="all">すべて</MenuItem>
-              <MenuItem value="pending">未提出（期限内）</MenuItem>
-              <MenuItem value="overdue">未提出（期限切れ）</MenuItem>
-              <MenuItem value="submitted">提出済</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
+            exclusive
+            value={selectedDay}
+            onChange={handleDayChange}
+            sx={{ flexWrap: "wrap" }}
+          >
+            {days.map((day) => (
+              <ToggleButton key={day.value} value={day.value}>
+                {day.label.slice(0, 1)}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{
+                  width: "90px",
+                  backgroundColor: "#eaf4fc",
+                  fontWeight: "bold",
+                }}
+              >
+                コマ
+              </TableCell>
+              <TableCell sx={{ backgroundColor: "#eaf4fc", fontWeight: "bold" }}>
+                授業
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {periods.map((period) => {
+              const lesson =
+                (dayLessons as Record<number, Lesson | null | undefined>)[period] ??
+                null;
+              return (
+                <TableRow key={period}>
+                  <TableCell
+                    sx={{
+                      width: "90px",
+                      textAlign: "center",
+                      borderRight: "1px solid #e4e4e7",
+                    }}
+                  >
+                    {period}限
+                  </TableCell>
+                  <TableCell
+                    sx={{ backgroundColor: lesson ? "transparent" : "#f4f4f5" }}
+                  >
+                    {lessonLink(lesson)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Paper>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+          gap: "1.5rem",
+        }}
+      >
         <AssignmentList assignments={filteredAssignments} />
         <Paper
           elevation={0}
@@ -338,17 +453,18 @@ export default function Home() {
               まだブックマークがありません。授業ページの★から追加できます。
             </Typography>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {bookmarkedAssignments.length > 0 && (
-                <div>
+                <Box>
                   <Typography
                     variant="caption"
                     sx={{ display: "block", color: "text.secondary", mb: 0.5 }}
                   >
                     課題
                   </Typography>
-                  <ul
-                    style={{
+                  <Box
+                    component="ul"
+                    sx={{
                       listStyle: "none",
                       margin: 0,
                       padding: 0,
@@ -361,29 +477,30 @@ export default function Home() {
                       const assignment = bookmark.assignments;
                       if (!assignment) return null;
                       return (
-                        <li key={assignment.id}>
+                        <Box component="li" key={assignment.id}>
                           <Link
                             href={`/course/${assignment.lesson_id}/assignment/${assignment.id}`}
                             sx={{ fontSize: "0.95rem" }}
                           >
                             » {assignment.lessons?.name ?? "授業"} / {assignment.name}
                           </Link>
-                        </li>
+                        </Box>
                       );
                     })}
-                  </ul>
-                </div>
+                  </Box>
+                </Box>
               )}
               {bookmarkedMaterials.length > 0 && (
-                <div>
+                <Box>
                   <Typography
                     variant="caption"
                     sx={{ display: "block", color: "text.secondary", mb: 0.5 }}
                   >
                     資料
                   </Typography>
-                  <ul
-                    style={{
+                  <Box
+                    component="ul"
+                    sx={{
                       listStyle: "none",
                       margin: 0,
                       padding: 0,
@@ -396,7 +513,7 @@ export default function Home() {
                       const material = bookmark.materials;
                       if (!material) return null;
                       return (
-                        <li key={material.id}>
+                        <Box component="li" key={material.id}>
                           <Link
                             href={material.content_url}
                             target="_blank"
@@ -405,84 +522,17 @@ export default function Home() {
                           >
                             » {material.name}
                           </Link>
-                        </li>
+                        </Box>
                       );
                     })}
-                  </ul>
-                </div>
+                  </Box>
+                </Box>
               )}
-            </div>
+            </Box>
           )}
         </Paper>
-      </div>
-      <Table sx={{ border: "1px solid #e0e0e0", width: "800px" }}>
-        <TableHead>
-          <TableRow>
-            <TableCell
-              sx={{
-                borderRight: "1px solid #e0e0e0",
-                backgroundColor: "#eaf4fc",
-                width: "80px",
-                height: "20px",
-                padding: "8px",
-              }}
-            />
-            {days.map((day, index) => (
-              <TableCell
-                key={day.value}
-                align="center"
-                sx={{
-                  borderRight:
-                    index < days.length - 1 ? "1px solid #e0e0e0" : "none",
-                  backgroundColor: "#eaf4fc",
-                  width: "800px",
-                  height: "20px",
-                  padding: "8px",
-                }}
-              >
-                {day.label}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {periods.map((period) => (
-            <TableRow key={period}>
-              <TableCell
-                sx={{
-                  borderRight: "1px solid #e0e0e0",
-                  backgroundColor: "#eaf4fc",
-                  width: "200px",
-                  height: "10px",
-                  padding: "0px",
-                  textAlign: "center",
-                }}
-              >
-                {period}限
-              </TableCell>
-              {days.map((day, index) => {
-                const lesson = timetable[day.value]?.[period];
-                return (
-                  <TableCell
-                    key={day.value}
-                    sx={{
-                      borderRight:
-                        index < days.length - 1 ? "1px solid #e0e0e0" : "none",
-                      backgroundColor: lesson ? "transparent" : "#f0f0f0",
-                      textAlign: "left",
-                      verticalAlign: "top",
-                      padding: "8px",
-                    }}
-                  >
-                    {lessonLink(lesson)}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
