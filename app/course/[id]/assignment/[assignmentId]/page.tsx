@@ -53,6 +53,7 @@ export default async function AssignmentDetailPage({ params }: Props) {
     .single<Lesson>();
 
   if (lessonError || !lesson) {
+    console.error(lessonError.message);
     notFound();
   }
 
@@ -64,6 +65,7 @@ export default async function AssignmentDetailPage({ params }: Props) {
     .single<Assignment>();
 
   if (assignmentError || !assignment) {
+    console.error(assignmentError.message);
     notFound();
   }
 
@@ -102,17 +104,27 @@ export default async function AssignmentDetailPage({ params }: Props) {
     <Box sx={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <Box sx={{ marginBottom: "1rem" }}>
-        <Link href={`/course/${lessonId}`} underline="hover" sx={{ fontSize: "14px" }}>
+        <Link
+          href={`/course/${lessonId}`}
+          underline="hover"
+          sx={{ fontSize: "14px" }}
+        >
           ← {lesson.name}に戻る
         </Link>
       </Box>
 
       {/* Assignment Information */}
       <Paper sx={{ padding: "2rem", marginBottom: "2rem" }}>
-        <Typography variant="h4" sx={{ marginBottom: "1rem", fontWeight: "bold" }}>
+        <Typography
+          variant="h4"
+          sx={{ marginBottom: "1rem", fontWeight: "bold" }}
+        >
           {assignment.name}
         </Typography>
-        <Typography variant="body1" sx={{ color: "text.secondary", marginBottom: "0.5rem" }}>
+        <Typography
+          variant="body1"
+          sx={{ color: "text.secondary", marginBottom: "0.5rem" }}
+        >
           授業: {lesson.name}
         </Typography>
         <Typography
@@ -155,13 +167,22 @@ export default async function AssignmentDetailPage({ params }: Props) {
       {/* Student View: Submission Form */}
       {!isTeacherOrAdmin && (
         <Paper sx={{ padding: "2rem", marginBottom: "2rem" }}>
-          <Typography variant="h5" sx={{ marginBottom: "1.5rem", fontWeight: "bold" }}>
+          <Typography
+            variant="h5"
+            sx={{ marginBottom: "1.5rem", fontWeight: "bold" }}
+          >
             課題提出
           </Typography>
 
           {submission ? (
             <Box>
-              <Typography sx={{ marginBottom: "1rem", color: "success.main", fontWeight: "bold" }}>
+              <Typography
+                sx={{
+                  marginBottom: "1rem",
+                  color: "success.main",
+                  fontWeight: "bold",
+                }}
+              >
                 ✓ 提出済み
               </Typography>
               <Typography variant="body2" sx={{ marginBottom: "0.5rem" }}>
@@ -178,9 +199,13 @@ export default async function AssignmentDetailPage({ params }: Props) {
                 })}
               </Typography>
               <Typography variant="body2" sx={{ marginBottom: "1.5rem" }}>
-                ファイルサイズ: {(submission.file_size / 1024 / 1024).toFixed(2)} MB
+                ファイルサイズ:{" "}
+                {(submission.file_size / 1024 / 1024).toFixed(2)} MB
               </Typography>
-              <Typography variant="body2" sx={{ marginBottom: "1rem", color: "text.secondary" }}>
+              <Typography
+                variant="body2"
+                sx={{ marginBottom: "1rem", color: "text.secondary" }}
+              >
                 再提出する場合は、以下のフォームから新しいファイルをアップロードしてください。
               </Typography>
             </Box>
@@ -201,30 +226,53 @@ export default async function AssignmentDetailPage({ params }: Props) {
       {/* Teacher/Admin View: Submissions List */}
       {isTeacherOrAdmin && (
         <Paper sx={{ padding: "2rem" }}>
-          <Typography variant="h5" sx={{ marginBottom: "1.5rem", fontWeight: "bold" }}>
+          <Typography
+            variant="h5"
+            sx={{ marginBottom: "1.5rem", fontWeight: "bold" }}
+          >
             提出状況 ({allSubmissions.length}件)
           </Typography>
 
           {allSubmissions.length === 0 ? (
-            <Typography sx={{ color: "text.secondary", textAlign: "center", padding: "2rem" }}>
+            <Typography
+              sx={{
+                color: "text.secondary",
+                textAlign: "center",
+                padding: "2rem",
+              }}
+            >
               まだ提出がありません
             </Typography>
           ) : (
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold", width: "25%" }}>学生ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", width: "30%" }}>ファイル名</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", width: "20%" }}>提出日時</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", width: "15%" }}>サイズ</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", width: "10%" }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", width: "25%" }}>
+                    学生ID
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", width: "30%" }}>
+                    ファイル名
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", width: "20%" }}>
+                    提出日時
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", width: "15%" }}>
+                    サイズ
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", width: "10%" }}>
+                    操作
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {allSubmissions.map((sub) => (
                   <TableRow key={sub.id}>
-                    <TableCell sx={{ fontSize: "14px" }}>{sub.user_id.substring(0, 8)}...</TableCell>
-                    <TableCell sx={{ fontSize: "14px" }}>{sub.file_name}</TableCell>
+                    <TableCell sx={{ fontSize: "14px" }}>
+                      {sub.user_id.substring(0, 8)}...
+                    </TableCell>
+                    <TableCell sx={{ fontSize: "14px" }}>
+                      {sub.file_name}
+                    </TableCell>
                     <TableCell sx={{ fontSize: "14px" }}>
                       {new Date(sub.submitted_at).toLocaleDateString("ja-JP", {
                         year: "numeric",
