@@ -190,8 +190,8 @@ export default function Home() {
             .limit(10),
         ]);
 
-      const rawAssignmentBookmarks: AssignmentBookmarkRow[] =
-        (assignmentBookmarkRows ?? []) as AssignmentBookmarkRow[];
+      const rawAssignmentBookmarks =
+        (assignmentBookmarkRows ?? []) as unknown as AssignmentBookmarkRow[];
       const normalizedAssignmentBookmarks: AssignmentBookmark[] =
         rawAssignmentBookmarks.map((bookmark) => {
           const data = bookmark.assignments;
@@ -211,8 +211,8 @@ export default function Home() {
           };
         });
 
-      const rawMaterialBookmarks: MaterialBookmarkRow[] =
-        (materialBookmarkRows ?? []) as MaterialBookmarkRow[];
+      const rawMaterialBookmarks =
+        (materialBookmarkRows ?? []) as unknown as MaterialBookmarkRow[];
       const normalizedMaterialBookmarks: MaterialBookmark[] =
         rawMaterialBookmarks.map((bookmark) => {
           const data = bookmark.materials;
