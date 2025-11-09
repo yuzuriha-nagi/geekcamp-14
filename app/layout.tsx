@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WebSchool",
+  title: "WebCampass",
   description: "Web-based school management system",
 };
 
