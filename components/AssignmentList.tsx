@@ -77,29 +77,40 @@ export default function AssignmentList({ assignments }: Props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {assignments.map((assignment) => (
-            <TableRow key={assignment.id}>
-              <TableCell>
-                <Typography
-                  sx={{ fontSize: "11px", color: "text.secondary", mb: 0.5 }}
-                >
-                  {assignment.lesson_name}
-                </Typography>
-                <Link
-                  href={`/course/${assignment.lesson_id}/assignment/${assignment.id}`}
-                  sx={{ fontSize: "14px" }}
-                >
-                  {assignment.name}
-                </Link>
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px" }}>
-                {calculateCountdown(assignment.deadline)}
-              </TableCell>
-              <TableCell sx={{ textAlign: "center", fontSize: "12px" }}>
-                {assignment.submitted ? "提出済" : "未提出"}
+          {assignments.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={3}
+                sx={{ textAlign: "center", color: "text.secondary", py: 4 }}
+              >
+                該当する課題はありません
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            assignments.map((assignment) => (
+              <TableRow key={assignment.id}>
+                <TableCell>
+                  <Typography
+                    sx={{ fontSize: "11px", color: "text.secondary", mb: 0.5 }}
+                  >
+                    {assignment.lesson_name}
+                  </Typography>
+                  <Link
+                    href={`/course/${assignment.lesson_id}/assignment/${assignment.id}`}
+                    sx={{ fontSize: "14px" }}
+                  >
+                    {assignment.name}
+                  </Link>
+                </TableCell>
+                <TableCell sx={{ fontSize: "12px" }}>
+                  {calculateCountdown(assignment.deadline)}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center", fontSize: "12px" }}>
+                  {assignment.submitted ? "提出済" : "未提出"}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </Box>

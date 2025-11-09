@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { dummyTimetable, Lesson } from "@/types/timetable";
 import {
+  FormControl,
+  InputLabel,
   Link,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import AssignmentList, {
   AssignmentWithLesson,
 } from "@/components/AssignmentList";
@@ -28,6 +34,10 @@ export default function Home() {
   ];
 
   const [assignments, setAssignments] = useState<AssignmentWithLesson[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "pending" | "submitted" | "overdue"
+  >("all");
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -91,6 +101,47 @@ export default function Home() {
     fetchAssignments();
   }, []);
 
+  const filteredAssignments = useMemo(() => {
+    const normalizedTerm = searchTerm.trim().toLowerCase();
+    const now = new Date();
+
+    return assignments.filter((assignment) => {
+      const matchesSearch =
+        normalizedTerm === "" ||
+        assignment.name.toLowerCase().includes(normalizedTerm) ||
+        assignment.lesson_name.toLowerCase().includes(normalizedTerm);
+
+      const deadline = new Date(assignment.deadline);
+      const isOverdue = deadline < now;
+      let matchesStatus = true;
+
+      switch (statusFilter) {
+        case "pending":
+          matchesStatus = !assignment.submitted && !isOverdue;
+          break;
+        case "submitted":
+          matchesStatus = !!assignment.submitted;
+          break;
+        case "overdue":
+          matchesStatus = !assignment.submitted && isOverdue;
+          break;
+        default:
+          matchesStatus = true;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [assignments, searchTerm, statusFilter]);
+
+  const handleFilterChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as
+      | "all"
+      | "pending"
+      | "submitted"
+      | "overdue";
+    setStatusFilter(value);
+  };
+
   return (
     <div
       style={{
@@ -101,7 +152,39 @@ export default function Home() {
         justifyContent: "center",
       }}
     >
-      <AssignmentList assignments={assignments} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem",
+            width: "380px",
+          }}
+        >
+          <TextField
+            label="課題を検索"
+            placeholder="キーワードで絞り込み"
+            size="small"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
+          <FormControl size="small">
+            <InputLabel id="assignment-status-filter-label">状態</InputLabel>
+            <Select
+              labelId="assignment-status-filter-label"
+              value={statusFilter}
+              label="状態"
+              onChange={handleFilterChange}
+            >
+              <MenuItem value="all">すべて</MenuItem>
+              <MenuItem value="pending">未提出（期限内）</MenuItem>
+              <MenuItem value="overdue">未提出（期限切れ）</MenuItem>
+              <MenuItem value="submitted">提出済</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <AssignmentList assignments={filteredAssignments} />
+      </div>
       <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
         <TableHead>
           <TableRow>
