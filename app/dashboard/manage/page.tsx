@@ -212,6 +212,7 @@ export default function ManageSchoolPage() {
                         }
                   )
                 }
+                disabled={isLoading}
               >
                 <option value="">学校を選択</option>
                 {schools.map((school) => (
@@ -239,6 +240,7 @@ export default function ManageSchoolPage() {
                         }
                   )
                 }
+                disabled={isLoading}
               >
                 {termOptions.map((term) => (
                   <option key={term.value} value={term.value}>
@@ -265,6 +267,7 @@ export default function ManageSchoolPage() {
                         }
                   )
                 }
+                disabled={isLoading}
               >
                 {gradeOptions.map((grade) => (
                   <option key={grade} value={grade}>
@@ -291,6 +294,7 @@ export default function ManageSchoolPage() {
                         }
                   )
                 }
+                disabled={isLoading}
               >
                 {classOptions.map((className) => (
                   <option key={className} value={className}>
@@ -303,7 +307,7 @@ export default function ManageSchoolPage() {
             <div className="md:col-span-2">
               <button
                 type="submit"
-                disabled={isSavingProfile}
+                disabled={isSavingProfile || isLoading}
                 className="w-full rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
               >
                 {isSavingProfile ? "保存中..." : "設定を保存"}

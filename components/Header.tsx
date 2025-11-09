@@ -1,7 +1,7 @@
 import { AppBar, Badge, Toolbar, Typography } from "@mui/material";
 import NextLink from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import UserMenu from "./UserMenu";
+import LogoutButton from "./LogoutButton";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -10,28 +10,10 @@ export default async function Header() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const userEmail = user?.email || null;
   let unreadCount = 0;
 
   // Fetch user role
-  let userRole: string | null = null;
   if (user) {
-    const { data: roleData } = await supabase
-      .from("roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (roleData) {
-      // Convert role to Japanese
-      const roleMap: Record<string, string> = {
-        student: "(学生)",
-        teacher: "(教員)",
-        admin: "(管理者)",
-      };
-      userRole = roleMap[roleData.role] || null;
-    }
-
     const { count } = await supabase
       .from("notifications")
       .select("id", { count: "exact", head: true })
@@ -88,7 +70,7 @@ export default async function Header() {
             </Badge>
           </NextLink>
         </div>
-        <UserMenu userEmail={userEmail} userRole={userRole} />
+        <LogoutButton />
       </Toolbar>
     </AppBar>
   );

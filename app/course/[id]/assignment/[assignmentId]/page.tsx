@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { notFound } from "next/navigation";
 import SubmitAssignmentForm from "./SubmitAssignmentForm";
+import BookmarkToggle from "@/components/BookmarkToggle";
 
 type Props = {
   params: Promise<{ id: string; assignmentId: string }>;
@@ -88,6 +89,13 @@ export default async function AssignmentDetailPage({ params }: Props) {
     allSubmissions = (data || []) as Submission[];
   }
 
+  const { data: assignmentBookmark } = await supabase
+    .from("assignment_bookmarks")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("assignment_id", assignmentId)
+    .maybeSingle();
+
   const now = new Date();
   const deadline = new Date(assignment.deadline);
   const isOverdue = deadline < now;
@@ -137,15 +145,23 @@ export default async function AssignmentDetailPage({ params }: Props) {
           })}
           {isOverdue && " (期限切れ)"}
         </Typography>
-        <Button
-          variant="outlined"
-          size="small"
-          href={assignment.content_url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          課題資料を開く
-        </Button>
+        <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <Button
+            variant="outlined"
+            size="small"
+            href={assignment.content_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            課題資料を開く
+          </Button>
+          <BookmarkToggle
+            resourceType="assignment"
+            resourceId={assignment.id}
+            initialBookmarked={!!assignmentBookmark}
+            size="medium"
+          />
+        </Box>
       </Paper>
 
       {/* Student View: Submission Form */}
