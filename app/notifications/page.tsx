@@ -3,16 +3,18 @@ import NextLink from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-type AssignmentForNotification = {
+type LessonInfo = {
+  name: string;
+};
+
+type AssignmentQueryResult = {
   id: string;
   lesson_id: string;
   name: string;
-  lessons: {
-    name: string;
-  } | null;
+  lessons: LessonInfo | LessonInfo[] | null;
 };
 
-type NotificationRow = {
+type NotificationQueryRow = {
   id: string;
   type: string;
   title: string;
@@ -20,6 +22,17 @@ type NotificationRow = {
   status: string;
   created_at: string;
   assignment_id: string | null;
+  assignments: AssignmentQueryResult | AssignmentQueryResult[] | null;
+};
+
+type AssignmentForNotification = {
+  id: string;
+  lesson_id: string;
+  name: string;
+  lessons: LessonInfo | null;
+};
+
+type NotificationRow = Omit<NotificationQueryRow, "assignments"> & {
   assignments: AssignmentForNotification | null;
 };
 
@@ -185,13 +198,26 @@ export default async function NotificationsPage() {
           }}
         >
           {notifications?.map((notification) => {
-            const assignment =
-              notification.assignments?.[0] ??
-              notification.assignments ??
-              null;
+            const assignmentData = Array.isArray(notification.assignments)
+              ? notification.assignments[0]
+              : notification.assignments;
+
+            let normalizedAssignment: AssignmentForNotification | null = null;
+            if (assignmentData) {
+              const lessonData = Array.isArray(assignmentData.lessons)
+                ? assignmentData.lessons[0] ?? null
+                : assignmentData.lessons ?? null;
+              normalizedAssignment = {
+                id: assignmentData.id,
+                lesson_id: assignmentData.lesson_id,
+                name: assignmentData.name,
+                lessons: lessonData,
+              };
+            }
+
             const normalizedNotification: NotificationRow = {
               ...notification,
-              assignments: assignment,
+              assignments: normalizedAssignment,
             };
 
             return (
