@@ -1,6 +1,16 @@
 import { Metadata } from "next";
+import NextLink from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+type AssignmentForNotification = {
+  id: string;
+  lesson_id: string;
+  name: string;
+  lessons: {
+    name: string;
+  } | null;
+};
 
 type NotificationRow = {
   id: string;
@@ -9,6 +19,8 @@ type NotificationRow = {
   body: string | null;
   status: string;
   created_at: string;
+  assignment_id: string | null;
+  assignments: AssignmentForNotification | null;
 };
 
 export const metadata: Metadata = {
@@ -46,9 +58,36 @@ export default async function NotificationsPage() {
     redirect("/login");
   }
 
+  const { data: roleData } = await supabase
+    .from("roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const canSendNotifications =
+    roleData?.role === "teacher" || roleData?.role === "admin";
+
   const { data: notifications, error } = await supabase
     .from("notifications")
-    .select("id,type,title,body,status,created_at")
+    .select(
+      `
+      id,
+      type,
+      title,
+      body,
+      status,
+      created_at,
+      assignment_id,
+      assignments:assignment_id (
+        id,
+        lesson_id,
+        name,
+        lessons (
+          name
+        )
+      )
+    `,
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -64,25 +103,48 @@ export default async function NotificationsPage() {
       <header
         style={{
           marginBottom: "1.5rem",
+          display: "flex",
+          gap: "1rem",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <p
-          style={{
-            textTransform: "uppercase",
-            letterSpacing: "0.3em",
-            fontSize: "0.75rem",
-            color: "#a1a1aa",
-            marginBottom: "0.4rem",
-          }}
-        >
-          Notifications
-        </p>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 600, margin: 0 }}>
-          通知センター
-        </h1>
-        <p style={{ color: "#71717a", marginTop: "0.4rem" }}>
-          最新の課題情報や運営からのお知らせをここで確認できます。
-        </p>
+        <div>
+          <p
+            style={{
+              textTransform: "uppercase",
+              letterSpacing: "0.3em",
+              fontSize: "0.75rem",
+              color: "#a1a1aa",
+              marginBottom: "0.4rem",
+            }}
+          >
+            Notifications
+          </p>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 600, margin: 0 }}>
+            通知センター
+          </h1>
+          <p style={{ color: "#71717a", marginTop: "0.4rem" }}>
+            最新の課題情報や運営からのお知らせをここで確認できます。
+          </p>
+        </div>
+        {canSendNotifications && (
+          <NextLink
+            href="/notifications/manage"
+            style={{
+              border: "1px solid #18181b",
+              borderRadius: "999px",
+              padding: "0.5rem 1.5rem",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              color: "#18181b",
+              textDecoration: "none",
+            }}
+          >
+            通知を送信
+          </NextLink>
+        )}
       </header>
 
       {error && (
@@ -193,6 +255,21 @@ export default async function NotificationsPage() {
                 >
                   {notification.body}
                 </p>
+              )}
+              {notification.assignments && (
+                <NextLink
+                  href={`/course/${notification.assignments.lesson_id}/assignment/${notification.assignments.id}`}
+                  style={{
+                    display: "inline-flex",
+                    marginTop: "0.75rem",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    color: "#2563eb",
+                  }}
+                >
+                  » {notification.assignments.lessons?.name ?? "授業"} /{" "}
+                  {notification.assignments.name} を開く
+                </NextLink>
               )}
             </li>
           ))}

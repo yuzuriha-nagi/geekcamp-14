@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Badge, Toolbar, Typography } from "@mui/material";
 import NextLink from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "./UserMenu";
@@ -11,6 +11,7 @@ export default async function Header() {
   } = await supabase.auth.getUser();
 
   const userEmail = user?.email || null;
+  let unreadCount = 0;
 
   // Fetch user role
   let userRole: string | null = null;
@@ -30,6 +31,14 @@ export default async function Header() {
       };
       userRole = roleMap[roleData.role] || null;
     }
+
+    const { count } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("status", "unread");
+
+    unreadCount = count ?? 0;
   }
 
   return (
@@ -60,16 +69,23 @@ export default async function Header() {
             href="/notifications"
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <Typography
-              component="span"
-              sx={{
-                fontSize: "0.95rem",
-                color: "#71717a",
-                "&:hover": { color: "#18181b" },
-              }}
+            <Badge
+              color="error"
+              badgeContent={unreadCount > 99 ? "99+" : unreadCount}
+              overlap="circular"
+              invisible={!unreadCount}
             >
-              通知
-            </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: "0.95rem",
+                  color: "#71717a",
+                  "&:hover": { color: "#18181b" },
+                }}
+              >
+                通知
+              </Typography>
+            </Badge>
           </NextLink>
         </div>
         <UserMenu userEmail={userEmail} userRole={userRole} />
