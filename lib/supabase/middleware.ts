@@ -53,6 +53,8 @@ export async function updateSession(request: NextRequest) {
   // If user is not logged in and trying to access protected pages
   if (!user && !isLoginPage) {
     const redirectUrl = new URL('/login', request.url)
+    // Save the original URL as a query parameter
+    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
     const redirectResponse = NextResponse.redirect(redirectUrl)
     // Copy cookies from supabaseResponse to redirectResponse
     supabaseResponse.cookies.getAll().forEach((cookie) => {

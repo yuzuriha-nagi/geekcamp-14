@@ -74,8 +74,16 @@ export default function LoginForm() {
     }
 
     const normalizedRole = roleData.role?.toLowerCase();
+
+    // Check if there's a redirect parameter in the URL
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+
     let destination = "/";
-    if (normalizedRole === "teacher") {
+    // If redirect parameter exists and is a valid relative path, use it
+    if (redirect && redirect.startsWith('/') && redirect !== '/login') {
+      destination = redirect;
+    } else if (normalizedRole === "teacher") {
       destination = "/dashboard/teacher";
     } else if (normalizedRole === "admin") {
       destination = "/dashboard/admin";
