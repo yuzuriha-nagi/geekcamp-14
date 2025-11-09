@@ -117,7 +117,7 @@ export default function Home() {
           lessons (
             name
           )
-        `,
+        `
         )
         .order("deadline", { ascending: true });
 
@@ -132,7 +132,7 @@ export default function Home() {
         .eq("user_id", user.id);
 
       const submittedAssignmentIds = new Set(
-        submissions?.map((s) => s.assignment_id) ?? [],
+        submissions?.map((s) => s.assignment_id) ?? []
       );
 
       const assignmentsWithLesson: AssignmentWithLesson[] = (
@@ -152,7 +152,6 @@ export default function Home() {
           submitted: submittedAssignmentIds.has(item.id),
         };
       });
-
       setAssignments(assignmentsWithLesson);
 
       const [{ data: assignmentBookmarkRows }, { data: materialBookmarkRows }] =
@@ -416,7 +415,7 @@ export default function Home() {
           )}
         </Paper>
       </div>
-      <Table sx={{ border: "1px solid #e0e0e0", width: "700px" }}>
+      <Table sx={{ border: "1px solid #e0e0e0", width: "800px" }}>
         <TableHead>
           <TableRow>
             <TableCell
@@ -468,9 +467,7 @@ export default function Home() {
                     key={day.value}
                     sx={{
                       borderRight:
-                        index < days.length - 1
-                          ? "1px solid #e0e0e0"
-                          : "none",
+                        index < days.length - 1 ? "1px solid #e0e0e0" : "none",
                       backgroundColor: lesson ? "transparent" : "#f0f0f0",
                       textAlign: "left",
                       verticalAlign: "top",

@@ -12,6 +12,8 @@ import {
   TableRow,
   Link,
   Paper,
+  Stack,
+  Button,
 } from "@mui/material";
 import { notFound } from "next/navigation";
 import BookmarkToggle from "@/components/BookmarkToggle";
@@ -84,15 +86,30 @@ export default async function CoursePage({ params }: Props) {
     <Box sx={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Lesson Information */}
       <Paper sx={{ padding: "2rem", marginBottom: "2rem" }}>
-        <Typography
-          variant="h4"
-          sx={{ marginBottom: "1rem", fontWeight: "bold" }}
-        >
-          {lesson.name}
-        </Typography>
-        <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          担当: {lesson.teacher}
-        </Typography>
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+          <div>
+            <Typography
+              variant="h4"
+              sx={{ marginBottom: "1rem", fontWeight: "bold" }}
+            >
+              {lesson.name}
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              担当: {lesson.teacher}
+            </Typography>
+          </div>
+          {lesson.syllabus_url && (
+            <Button
+              variant="contained"
+              href={lesson.syllabus_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ marginLeft: "auto" }}
+            >
+              シラバスを見る
+            </Button>
+          )}
+        </Stack>
       </Paper>
 
       {/* Materials List */}
@@ -245,7 +262,9 @@ export default async function CoursePage({ params }: Props) {
                       )}
                       {isOverdue && " (期限切れ)"}
                     </TableCell>
-                    <TableCell sx={{ fontSize: "14px", color: "text.secondary" }}>
+                    <TableCell
+                      sx={{ fontSize: "14px", color: "text.secondary" }}
+                    >
                       {new Date(assignment.created_at).toLocaleDateString(
                         "ja-JP",
                         {
