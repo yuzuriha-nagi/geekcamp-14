@@ -21,6 +21,13 @@ import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 type Role = "student" | "teacher" | "admin";
 type TargetMode = "role" | "user";
 
+type AssignmentQueryRow = {
+  id: string;
+  name: string;
+  lesson_id: string;
+  lessons: { name: string } | { name: string }[] | null;
+};
+
 type AssignmentOption = {
   id: string;
   name: string;
@@ -37,7 +44,6 @@ const typeOptions = [
 
 export default function ManageNotificationsPage() {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [currentRole, setCurrentRole] = useState<Role | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,13 +84,18 @@ export default function ManageNotificationsPage() {
         "課題一覧の取得に失敗しました。再読み込みしてください。",
       );
     } else {
-      const mapped: AssignmentOption[] =
-        data?.map((item: any) => ({
+      const rawData = ((data ?? []) as AssignmentQueryRow[]).map((item) => {
+        const lessonsField = Array.isArray(item.lessons)
+          ? item.lessons[0] ?? null
+          : item.lessons ?? null;
+        return {
           id: item.id,
           name: item.name,
           lesson_id: item.lesson_id,
-          lesson_name: item.lessons?.name ?? "不明な授業",
-        })) ?? [];
+          lesson_name: lessonsField?.name ?? "不明な授業",
+        };
+      });
+      const mapped: AssignmentOption[] = rawData;
       setAssignments(mapped);
     }
     setIsLoadingAssignments(false);
@@ -116,7 +127,6 @@ export default function ManageNotificationsPage() {
         return;
       }
 
-      setCurrentRole(roleData.role);
       setIsAuthorized(true);
 
       await fetchAssignments(supabase);

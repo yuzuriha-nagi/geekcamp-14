@@ -38,6 +38,20 @@ export default function AdminDashboardClient() {
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchSchools = async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase
+      .from("schools")
+      .select("id, name")
+      .order("name");
+    if (error) {
+      setError("学校一覧の取得に失敗しました。");
+      setSchools([]);
+    } else {
+      setSchools(data ?? []);
+    }
+  };
+
   useEffect(() => {
     const bootstrap = async () => {
       setIsLoading(true);
@@ -73,20 +87,6 @@ export default function AdminDashboardClient() {
 
     bootstrap();
   }, []);
-
-  const fetchSchools = async () => {
-    const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase
-      .from("schools")
-      .select("id, name")
-      .order("name");
-    if (error) {
-      setError("学校一覧の取得に失敗しました。");
-      setSchools([]);
-    } else {
-      setSchools(data ?? []);
-    }
-  };
 
   const handleCreateSchool = async (event: FormEvent) => {
     event.preventDefault();

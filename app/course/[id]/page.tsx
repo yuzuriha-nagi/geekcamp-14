@@ -14,6 +14,7 @@ import {
   Paper,
 } from "@mui/material";
 import { notFound } from "next/navigation";
+import BookmarkToggle from "@/components/BookmarkToggle";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -22,6 +23,9 @@ type Props = {
 export default async function CoursePage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Fetch lesson data
   const { data: lesson, error: lessonError } = await supabase
@@ -35,7 +39,7 @@ export default async function CoursePage({ params }: Props) {
   }
 
   // Fetch materials data (ordered by created_at DESC)
-  const { data: materials, error: materialsError } = await supabase
+  const { data: materials } = await supabase
     .from("materials")
     .select("*")
     .eq("lesson_id", id)
@@ -44,13 +48,37 @@ export default async function CoursePage({ params }: Props) {
   const materialsList = (materials || []) as Material[];
 
   // Fetch assignments data (ordered by deadline ASC)
-  const { data: assignments, error: assignmentsError } = await supabase
+  const { data: assignments } = await supabase
     .from("assignments")
     .select("*")
     .eq("lesson_id", id)
     .order("deadline", { ascending: true });
 
   const assignmentsList = (assignments || []) as Assignment[];
+
+  let assignmentBookmarks = new Set<string>();
+  let materialBookmarks = new Set<string>();
+
+  if (user) {
+    const [{ data: assignmentBookmarkRows }, { data: materialBookmarkRows }] =
+      await Promise.all([
+        supabase
+          .from("assignment_bookmarks")
+          .select("assignment_id")
+          .eq("user_id", user.id),
+        supabase
+          .from("material_bookmarks")
+          .select("material_id")
+          .eq("user_id", user.id),
+      ]);
+
+    assignmentBookmarks = new Set(
+      assignmentBookmarkRows?.map((row) => row.assignment_id) ?? [],
+    );
+    materialBookmarks = new Set(
+      materialBookmarkRows?.map((row) => row.material_id) ?? [],
+    );
+  }
 
   return (
     <Box sx={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
@@ -96,6 +124,13 @@ export default async function CoursePage({ params }: Props) {
                 <TableCell sx={{ fontWeight: "bold", width: "40%" }}>
                   投稿日
                 </TableCell>
+                {user && (
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "60px", textAlign: "center" }}
+                  >
+                    ★
+                  </TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -118,6 +153,15 @@ export default async function CoursePage({ params }: Props) {
                       day: "2-digit",
                     })}
                   </TableCell>
+                  {user && (
+                    <TableCell sx={{ textAlign: "center" }}>
+                      <BookmarkToggle
+                        resourceType="material"
+                        resourceId={material.id}
+                        initialBookmarked={materialBookmarks.has(material.id)}
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -157,6 +201,13 @@ export default async function CoursePage({ params }: Props) {
                 <TableCell sx={{ fontWeight: "bold", width: "30%" }}>
                   投稿日
                 </TableCell>
+                {user && (
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "60px", textAlign: "center" }}
+                  >
+                    ★
+                  </TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -204,6 +255,15 @@ export default async function CoursePage({ params }: Props) {
                         }
                       )}
                     </TableCell>
+                    {user && (
+                      <TableCell sx={{ textAlign: "center" }}>
+                        <BookmarkToggle
+                          resourceType="assignment"
+                          resourceId={assignment.id}
+                          initialBookmarked={assignmentBookmarks.has(assignment.id)}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
