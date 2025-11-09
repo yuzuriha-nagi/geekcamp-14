@@ -1,5 +1,6 @@
 "use client";
 
+import type { AuthError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,29 @@ type Status =
   | { type: "idle" }
   | { type: "error"; message: string }
   | { type: "success"; message: string };
+
+const authErrorMessages: Record<string, string> = {
+  invalid_credentials:
+    "ユーザーIDまたはパスワードが正しくありません。もう一度入力してください。",
+  email_not_confirmed:
+    "メールアドレスが確認されていません。確認メールのリンクから有効化してください。",
+  user_not_found: "該当するユーザーが見つかりません。入力内容をご確認ください。",
+  over_email_send_rate_limit:
+    "一定回数以上の試行が行われました。数分後に再度お試しください。",
+  mfa_required:
+    "多要素認証が必要です。登録済みの認証方法で追加の手続きを行ってください。",
+};
+
+const translateAuthError = (code?: string, fallback?: string) => {
+  if (!code) {
+    return fallback ?? "ログインに失敗しました。時間をおいて再度お試しください。";
+  }
+  return (
+    authErrorMessages[code] ??
+    fallback ??
+    "ログインに失敗しました。時間をおいて再度お試しください。"
+  );
+};
 
 export default function LoginForm() {
   const router = useRouter();
@@ -43,7 +67,14 @@ export default function LoginForm() {
     });
 
     if (error) {
-      setStatus({ type: "error", message: error.message });
+      const supabaseError = error as AuthError & { code?: string };
+      setStatus({
+        type: "error",
+        message: translateAuthError(
+          supabaseError.code,
+          supabaseError.message,
+        ),
+      });
       setIsSubmitting(false);
       return;
     }
