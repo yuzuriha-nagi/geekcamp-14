@@ -305,135 +305,141 @@ export default function Home() {
         margin: "0 auto",
         padding: { xs: "1.5rem", md: "2rem" },
         display: "flex",
-        flexDirection: "column",
-        gap: "1.5rem",
+        flexDirection: { xs: "column", lg: "row" },
+        gap: { xs: "1.5rem", lg: "2rem" },
+        alignItems: "flex-start",
       }}
     >
-      <Paper
-        elevation={0}
+      <Box
         sx={{
-          border: "1px solid #e4e4e7",
-          borderRadius: "12px",
-          padding: "16px",
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: "1rem",
-        }}
-      >
-        <TextField
-          fullWidth
-          label="課題を検索"
-          placeholder="キーワードで絞り込み"
-          size="small"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-        />
-        <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: "200px" } }}>
-          <InputLabel id="assignment-status-filter-label">状態</InputLabel>
-          <Select
-            labelId="assignment-status-filter-label"
-            value={statusFilter}
-            label="状態"
-            onChange={handleFilterChange}
-          >
-            <MenuItem value="all">すべて</MenuItem>
-            <MenuItem value="pending">未提出（期限内）</MenuItem>
-            <MenuItem value="overdue">未提出（期限切れ）</MenuItem>
-            <MenuItem value="submitted">提出済</MenuItem>
-          </Select>
-        </FormControl>
-      </Paper>
-
-      <Paper
-        elevation={0}
-        sx={{
-          border: "1px solid #e4e4e7",
-          borderRadius: "12px",
-          padding: "16px",
+          width: { xs: "100%", lg: "380px" },
+          flexShrink: 0,
           display: "flex",
           flexDirection: "column",
           gap: "1rem",
         }}
       >
-        <Box
+        <Paper
+          elevation={0}
           sx={{
+            border: "1px solid #e4e4e7",
+            borderRadius: "12px",
+            padding: "16px",
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", sm: "center" },
             flexDirection: { xs: "column", sm: "row" },
-            gap: 1,
+            gap: "1rem",
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            {selectedDayLabel}の時間割
-          </Typography>
-          <ToggleButtonGroup
+          <TextField
+            fullWidth
+            label="課題を検索"
+            placeholder="キーワードで絞り込み"
             size="small"
-            exclusive
-            value={selectedDay}
-            onChange={handleDayChange}
-            sx={{ flexWrap: "wrap" }}
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
+          <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: "200px" } }}>
+            <InputLabel id="assignment-status-filter-label">状態</InputLabel>
+            <Select
+              labelId="assignment-status-filter-label"
+              value={statusFilter}
+              label="状態"
+              onChange={handleFilterChange}
+            >
+              <MenuItem value="all">すべて</MenuItem>
+              <MenuItem value="pending">未提出（期限内）</MenuItem>
+              <MenuItem value="overdue">未提出（期限切れ）</MenuItem>
+              <MenuItem value="submitted">提出済</MenuItem>
+            </Select>
+          </FormControl>
+        </Paper>
+
+        <Box sx={{ display: { xs: "block", lg: "none" } }}>
+          <Paper
+            elevation={0}
+            sx={{
+              border: "1px solid #e4e4e7",
+              borderRadius: "12px",
+              padding: "16px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
           >
-            {days.map((day) => (
-              <ToggleButton key={day.value} value={day.value}>
-                {day.label.slice(0, 1)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Box>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell
-                sx={{
-                  width: "90px",
-                  backgroundColor: "#eaf4fc",
-                  fontWeight: "bold",
-                }}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "center" },
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 1,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                {selectedDayLabel}の時間割
+              </Typography>
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={selectedDay}
+                onChange={handleDayChange}
+                sx={{ flexWrap: "wrap" }}
               >
-                コマ
-              </TableCell>
-              <TableCell sx={{ backgroundColor: "#eaf4fc", fontWeight: "bold" }}>
-                授業
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {periods.map((period) => {
-              const lesson =
-                (dayLessons as Record<number, Lesson | null | undefined>)[period] ??
-                null;
-              return (
-                <TableRow key={period}>
+                {days.map((day) => (
+                  <ToggleButton key={day.value} value={day.value}>
+                    {day.label.slice(0, 1)}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
                   <TableCell
                     sx={{
                       width: "90px",
-                      textAlign: "center",
-                      borderRight: "1px solid #e4e4e7",
+                      backgroundColor: "#eaf4fc",
+                      fontWeight: "bold",
                     }}
                   >
-                    {period}限
+                    コマ
                   </TableCell>
-                  <TableCell
-                    sx={{ backgroundColor: lesson ? "transparent" : "#f4f4f5" }}
-                  >
-                    {lessonLink(lesson)}
+                  <TableCell sx={{ backgroundColor: "#eaf4fc", fontWeight: "bold" }}>
+                    授業
                   </TableCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </Paper>
+              </TableHead>
+              <TableBody>
+                {periods.map((period) => {
+                  const lesson =
+                    (dayLessons as Record<number, Lesson | null | undefined>)[period] ??
+                    null;
+                  return (
+                    <TableRow key={period}>
+                      <TableCell
+                        sx={{
+                          width: "90px",
+                          textAlign: "center",
+                          borderRight: "1px solid #e4e4e7",
+                        }}
+                      >
+                        {period}限
+                      </TableCell>
+                      <TableCell
+                        sx={{ backgroundColor: lesson ? "transparent" : "#f4f4f5" }}
+                      >
+                        {lessonLink(lesson)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Paper>
+        </Box>
 
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
-          gap: "1.5rem",
-        }}
-      >
         <AssignmentList assignments={filteredAssignments} />
+
         <Paper
           elevation={0}
           sx={{
@@ -531,6 +537,79 @@ export default function Home() {
             </Box>
           )}
         </Paper>
+      </Box>
+      <Box
+        sx={{
+          flex: 1,
+          display: { xs: "none", lg: "block" },
+          border: "1px solid #e0e0e0",
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      >
+        <Table sx={{ width: "100%" }}>
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{
+                  borderRight: "1px solid #e0e0e0",
+                  backgroundColor: "#eaf4fc",
+                  width: "80px",
+                  padding: "8px",
+                }}
+              />
+              {days.map((day, index) => (
+                <TableCell
+                  key={day.value}
+                  align="center"
+                  sx={{
+                    borderRight:
+                      index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                    backgroundColor: "#eaf4fc",
+                    padding: "8px",
+                  }}
+                >
+                  {day.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {periods.map((period) => (
+              <TableRow key={period}>
+                <TableCell
+                  sx={{
+                    borderRight: "1px solid #e0e0e0",
+                    backgroundColor: "#eaf4fc",
+                    width: "80px",
+                    textAlign: "center",
+                    padding: "8px 4px",
+                  }}
+                >
+                  {period}限
+                </TableCell>
+                {days.map((day, index) => {
+                  const lesson = timetable[day.value]?.[period] ?? null;
+                  return (
+                    <TableCell
+                      key={day.value}
+                      sx={{
+                        borderRight:
+                          index < days.length - 1 ? "1px solid #e0e0e0" : "none",
+                        backgroundColor: lesson ? "transparent" : "#f0f0f0",
+                        textAlign: "left",
+                        verticalAlign: "top",
+                        padding: "8px",
+                      }}
+                    >
+                      {lessonLink(lesson)}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Box>
     </Box>
   );
