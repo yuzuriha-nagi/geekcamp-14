@@ -70,15 +70,17 @@ export default async function CoursePage({ params }: Props) {
               担当: {lesson.teacher}
             </Typography>
           </div>
-          <Button
-            variant="contained"
-            href={lesson.syllabus_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ marginLeft: "auto" }}
-          >
-            シラバスを見る
-          </Button>
+          {lesson.syllabus_url && (
+            <Button
+              variant="contained"
+              href={lesson.syllabus_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ marginLeft: "auto" }}
+            >
+              シラバスを見る
+            </Button>
+          )}
         </Stack>
       </Paper>
 
