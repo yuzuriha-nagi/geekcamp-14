@@ -184,15 +184,25 @@ export default async function NotificationsPage() {
             gap: "1rem",
           }}
         >
-          {notifications?.map((notification: NotificationRow) => (
-            <li
-              key={notification.id}
+          {notifications?.map((notification) => {
+            const assignment =
+              notification.assignments?.[0] ??
+              notification.assignments ??
+              null;
+            const normalizedNotification: NotificationRow = {
+              ...notification,
+              assignments: assignment,
+            };
+
+            return (
+              <li
+              key={normalizedNotification.id}
               style={{
                 border: "1px solid #e4e4e7",
                 borderRadius: "1.5rem",
                 padding: "1.25rem 1.5rem",
                 backgroundColor:
-                  statusColors[notification.status] ?? "#fff",
+                  statusColors[normalizedNotification.status] ?? "#fff",
               }}
             >
               <div
@@ -213,7 +223,7 @@ export default async function NotificationsPage() {
                       color: "#71717a",
                     }}
                   >
-                    {notification.type}
+                    {normalizedNotification.type}
                   </span>
                   <span
                     style={{
@@ -221,7 +231,7 @@ export default async function NotificationsPage() {
                       color: "#a1a1aa",
                     }}
                   >
-                    {notification.status === "unread"
+                    {normalizedNotification.status === "unread"
                       ? "未読"
                       : "既読"}
                   </span>
@@ -232,7 +242,7 @@ export default async function NotificationsPage() {
                     color: "#a1a1aa",
                   }}
                 >
-                  {formatDate(notification.created_at)}
+                  {formatDate(normalizedNotification.created_at)}
                 </time>
               </div>
               <h2
@@ -242,9 +252,9 @@ export default async function NotificationsPage() {
                   fontWeight: 600,
                 }}
               >
-                {notification.title}
+                {normalizedNotification.title}
               </h2>
-              {notification.body && (
+              {normalizedNotification.body && (
                 <p
                   style={{
                     margin: 0,
@@ -253,12 +263,12 @@ export default async function NotificationsPage() {
                     whiteSpace: "pre-line",
                   }}
                 >
-                  {notification.body}
+                  {normalizedNotification.body}
                 </p>
               )}
-              {notification.assignments && (
+              {normalizedNotification.assignments && (
                 <NextLink
-                  href={`/course/${notification.assignments.lesson_id}/assignment/${notification.assignments.id}`}
+                  href={`/course/${normalizedNotification.assignments.lesson_id}/assignment/${normalizedNotification.assignments.id}`}
                   style={{
                     display: "inline-flex",
                     marginTop: "0.75rem",
@@ -267,12 +277,13 @@ export default async function NotificationsPage() {
                     color: "#2563eb",
                   }}
                 >
-                  » {notification.assignments.lessons?.name ?? "授業"} /{" "}
-                  {notification.assignments.name} を開く
+                  » {normalizedNotification.assignments.lessons?.name ?? "授業"} /{" "}
+                  {normalizedNotification.assignments.name} を開く
                 </NextLink>
               )}
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>
