@@ -194,7 +194,9 @@ export default async function CoursePage({ params }: Props) {
                       )}
                       {isOverdue && " (期限切れ)"}
                     </TableCell>
-                    <TableCell sx={{ fontSize: "14px", color: "text.secondary" }}>
+                    <TableCell
+                      sx={{ fontSize: "14px", color: "text.secondary" }}
+                    >
                       {new Date(assignment.created_at).toLocaleDateString(
                         "ja-JP",
                         {
